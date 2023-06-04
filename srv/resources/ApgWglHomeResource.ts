@@ -6,6 +6,7 @@
  */
 
 
+import { eApgWglMaterialTypes } from "../../mod.ts";
 import { Edr, Tng, Dir, Uts } from "../deps.ts";
 
 
@@ -44,43 +45,43 @@ export class ApgWglHomeResource extends Edr.Drash.Resource {
     const r: Uts.IApgUtsHyperlink[] =
       [
         {
-          href: "/gltf/tests/wireframe_mats/false",
+          href: `/gltf/tests/${eApgWglMaterialTypes.WireframeMaterials}/false`,
           caption: "Wireframe materials"
         },
         {
-          href: "/gltf/tests/lambert_mats/false",
+          href: `/gltf/tests/${eApgWglMaterialTypes.LambertMaterials}/false`,
           caption: "Lambert materials"
         },
         {
-          href: "/gltf/tests/phong_mats/false",
+          href: `/gltf/tests/${eApgWglMaterialTypes.PhongMaterials}/false`,
           caption: "Phong materials",
         },
         {
-          href: "/gltf/tests/phong_flat_mats/false",
+          href: `/gltf/tests/${eApgWglMaterialTypes.PhongFlatMaterials}/false`,
           caption: "Phong materials flat shading",
         },
         {
-          href: "/gltf/tests/phong_transp_mats/false",
+          href: `/gltf/tests/${eApgWglMaterialTypes.PhongTranspMaterials}/false`,
           caption: "Phong materials transparent flat shading",
         },
         {
-          href: "/gltf/tests/phong_txtrd_mats/false",
+          href: `/gltf/tests/${eApgWglMaterialTypes.PhongTexturedMaterials}/false`,
           caption: "Phong materials textured",
         },
         {
-          href: "/gltf/tests/phong_bumped_mats/false",
+          href: `/gltf/tests/${eApgWglMaterialTypes.PhongBumpedMaterials}/false`,
           caption: "Phong materials bumped",
         },
         {
-          href: "/gltf/tests/std_mats/false",
+          href: `/gltf/tests/${eApgWglMaterialTypes.StdMaterials}/false`,
           caption: "Standard materials",
         },
         {
-          href: "/gltf/tests/std_txtrd_mats/false",
+          href: `/gltf/tests/${eApgWglMaterialTypes.StdTexturedMaterials}/false`,
           caption: "Standard materials textured",
         },
         {
-          href: "/gltf/tests/std_nrmled_mats/false",
+          href: `/gltf/tests/${eApgWglMaterialTypes.StdNormaledMaterials}/false`,
           caption: "Standard materials with normal maps",
         },
       ];

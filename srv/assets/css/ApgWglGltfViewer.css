@@ -1,0 +1,45 @@
+#ApgWglGltfViewer {
+    /* makes this the origin of its children */
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#ApgWglGltfContainer {
+    /* let our container decide our size */
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+#ApgWglGltfLogger {
+    /* let us position ourself inside the container */
+    position: absolute;
+    /* make our position the top left of the container */
+    left: 0;
+    top: 0;
+    font-size: 0.5rem;
+    color: white;
+}
+
+#ApgWglGltfLogger>ul {
+    /* let us position them inside the container */
+    position: absolute;
+    /* make their default position the top left of the container */
+    left: 0;
+    top: 0;
+    /* change the cursor to a hand when over us */
+    cursor: pointer;
+    /* don't let the text get selected */
+    user-select: none;
+}
+
+#ApgWglGltfLogger>li {
+    list-style-type: disc;
+    margin: 0;
+}
+
+#ApgWglGltfLogger>li:hover {
+    color: red;
+}

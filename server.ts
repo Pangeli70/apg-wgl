@@ -15,7 +15,7 @@ Lgr.ApgLgr.AddConsoleTransport();
 
 Tng.ApgTngService.Init('./srv/templates', "");
 
-const serverInfo = Dir.ApgDirServer.GetInfo(Dir.eApgDirEntriesIds.edr);
+const serverInfo = Dir.ApgDirServer.GetInfo(Dir.eApgDirEntriesIds.wgl);
 
 const server = new Edr.Drash.Server({
   hostname: '0.0.0.0',

@@ -6,6 +6,7 @@
  */
 
 import { ApgWglService } from "../../lib/mod.ts";
+import { eApgWglMaterialTypes } from "../../mod.ts";
 import { Uts, Spc, Wgl, THREE } from "../deps.ts";
 
 
@@ -279,38 +280,42 @@ export class ApgWglSpec extends Spc.ApgSpcSpec {
     if (!Uts.ApgUtsIs.IsDeploy()) {
       Uts.ApgUtsFs.ClearFolderSync(this._outputPath);
 
-      for (let i = 0; i < 4; i++) {
-        //for (let i = 2; i < 4; i++) {
-        const rx = Math.trunc((Math.random() * 3) + 2);
-        const rz = Math.trunc((Math.random() * 3) + 2);
-        let scene = undefined;
-        const materialType = this.materialType;
+      const materials = Object.values(eApgWglMaterialTypes);
 
-        let isFlatShading = false;
-        if (materialType.toLowerCase().indexOf("flat") !== -1) {
-          isFlatShading = true;
-        }
+      for (const material of materials) {
 
-        let fileName = "";
-        if (i == 0) {
-          scene = this._closedSplinesScene(rx, rz, 200, 200, materialType, isFlatShading);
-          fileName = "ClosedSplineTest";
-        } else if (i == 1) {
-          scene = this._openedSplinesScene(rx, rz, 200, 200, materialType, isFlatShading);
-          fileName = "OpenedSplineTest";
-        } else if (i == 2) {
-          scene = this._polyLineScene(rx, rz, 200, 200, materialType, isFlatShading, true);
-          fileName = "PolyLineTest";
-        } else {
-          scene = this._linearExtrusionsScene(rx, rz, 200, 200, materialType, isFlatShading);
-          fileName = "LinearExtrusionTest";
+        for (let i = 0; i < 4; i++) {
+          //for (let i = 2; i < 4; i++) {
+          const rx = Math.trunc((Math.random() * 3) + 2);
+          const rz = Math.trunc((Math.random() * 3) + 2);
+          let scene = undefined;
+
+          let isFlatShading = false;
+          if (material.toLowerCase().indexOf("flat") !== -1) {
+            isFlatShading = true;
+          }
+
+          let fileName = "";
+          if (i == 0) {
+            scene = this._closedSplinesScene(rx, rz, 200, 200, material, isFlatShading);
+            fileName = "ClosedSplineTest";
+          } else if (i == 1) {
+            scene = this._openedSplinesScene(rx, rz, 200, 200, material, isFlatShading);
+            fileName = "OpenedSplineTest";
+          } else if (i == 2) {
+            scene = this._polyLineScene(rx, rz, 200, 200, material, isFlatShading, true);
+            fileName = "PolyLineTest";
+          } else {
+            scene = this._linearExtrusionsScene(rx, rz, 200, 200, material, isFlatShading);
+            fileName = "LinearExtrusionTest";
+          }
+          const dateTimeStamp = new Uts.ApgUtsDateTimeStamp(new Date()).Stamp;
+          await this._save(
+            scene,
+            material + "_" + i.toString() + "_" + fileName + "_" + dateTimeStamp,
+            Uts.ApgUtsIs.IsDeploy()
+          )
         }
-        const dateTimeStamp = new Uts.ApgUtsDateTimeStamp(new Date()).Stamp;
-        await this._save(
-          scene,
-          i.toString() + "_" + fileName + "_" + dateTimeStamp,
-          Uts.ApgUtsIs.IsDeploy()
-        )
       }
     }
   }

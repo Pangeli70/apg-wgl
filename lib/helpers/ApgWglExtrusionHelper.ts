@@ -260,15 +260,15 @@ export class ApgWglExtrusionHelper {
 
     const triangleIndexes = this._getTriangleIndexesForExtrusion(aextrusionPath, profile.count, apathClosed);
 
-    if (apathCapped === true) {
-      // add indices from profile geometries
-      this._copyIndexesFromShapeCaps(
-        profileGeometry,
-        profile.count,
-        aextrusionPath.length,
-        triangleIndexes
-      );
-    }
+    // if (apathCapped === true) {
+    //   // add indices from profile geometries
+    //   this._copyIndexesFromShapeCaps(
+    //     profileGeometry,
+    //     profile.count,
+    //     aextrusionPath.length,
+    //     triangleIndexes
+    //   );
+    // }
 
     fullProfileGeometry.setIndex(triangleIndexes);
     fullProfileGeometry.computeVertexNormals();

@@ -10,24 +10,23 @@ import { Edr, Uts, Wgl, Dir, Tng } from "../deps.ts";
 
 
 export class ApgWglViewerResource extends Edr.ApgEdrLoggableResource {
-  public override paths = ["/gltf/viewer/:folder/:gltf"];
+  public override paths = ["/gltf/viewer/:gltf"];
 
   public async GET(request: Edr.Drash.Request, response: Edr.Drash.Response) {
 
-    this.logInit(import.meta.url, request);
-    this.logBegin(this.GET.name)
+    //this.logInit(import.meta.url, request);
+    //this.logBegin(this.GET.name)
 
     const serverInfo = Dir.ApgDirServer.GetInfo(Dir.eApgDirEntriesIds.wgl);
 
-    const rawFolder = request.pathParam("folder");
     const rawGltf = request.pathParam("gltf");
 
-    
-    const gltfFile = Uts.Std.Path.resolve(Wgl.ApgWglService.TestOutputPath + rawFolder + "/" + rawGltf);
+
+    const gltfFile = Uts.Std.Path.resolve(Wgl.ApgWglService.TestOutputPath + rawGltf);
 
     const fileExists = Uts.ApgUtsFs.FileExistsSync(gltfFile);
     if (!fileExists) {
-      const error = `The file [${gltfFile}] does not exist.`;
+      const error = `The file [${rawGltf}] does not exist.`;
       console.log(error);
       return;
     }
@@ -39,11 +38,11 @@ export class ApgWglViewerResource extends Edr.ApgEdrLoggableResource {
         title: serverInfo.title
       },
       _page_: {
-        title: "Available gltf tests",
+        title: "Gltf viewer for [" + rawGltf + "]",
         toolbar: "",
         released: "2022/09/19"
       },
-      _resource_: gltfFile
+      _resource_: "/gltf/test/" + rawGltf
     };
 
 
@@ -51,7 +50,7 @@ export class ApgWglViewerResource extends Edr.ApgEdrLoggableResource {
 
     response.html(html);
 
-    this.logEnd();
+    //this.logEnd();
   }
 
 
