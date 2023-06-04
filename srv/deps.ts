@@ -13,7 +13,7 @@ export * as Rst from "https://raw.githubusercontent.com/Pangeli70/apg-rst/master
 export * as Lgr from "https://raw.githubusercontent.com/Pangeli70/apg-lgr/master/mod.ts";
 export * as Dir from "https://raw.githubusercontent.com/Pangeli70/apg-dir/master/mod.ts";
 export * as Edr from "https://raw.githubusercontent.com/Pangeli70/apg-edr/master/mod.ts";
-//export * as Tng from "https://raw.githubusercontent.com/Pangeli70/apg-tng/master/mod.ts";
+export * as Tng from "https://raw.githubusercontent.com/Pangeli70/apg-tng/master/mod.ts";
 
 // Apg Local Monorepo
 // export * as Uts from "../../apg-uts/mod.ts";
@@ -21,4 +21,4 @@ export * as Edr from "https://raw.githubusercontent.com/Pangeli70/apg-edr/master
 // export * as Rst from "../../apg-rst/mod.ts";
 // export * as Dir from "../../apg-dir/mod.ts";
 // export * as Edr from "../../apg-edr/mod.ts";
-export * as Tng from "../../apg-tng/mod.ts";
+// export * as Tng from "../../apg-tng/mod.ts";
