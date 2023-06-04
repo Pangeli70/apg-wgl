@@ -1,0 +1,386 @@
+<!-- Import maps polyfill -->
+<!-- Remove this when import maps will be widely supported -->
+<script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+
+<script type="importmap">
+  {
+    "imports": {
+      "three": "https://ga.jspm.io/npm:three@0.140.0/build/three.module.js",
+      "OrbitControls.js": "https://ga.jspm.io/npm:three@0.140.0/examples/jsm/controls/OrbitControls.js",
+      "GLTFLoader.js": "https://ga.jspm.io/npm:three@0.140.0/examples/jsm/loaders/GLTFLoader.js",
+      "RGBELoader.js": "https://ga.jspm.io/npm:three@0.140.0/examples/jsm/loaders/RGBELoader.js"
+    }
+  }
+</script>
+
+<script src="/assets/js/gltfViewer.js"></script>
+
+<style>
+  #content {
+    /* makes this the origin of its children */
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  #glContainer {
+    /* let our container decide our size */
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  #logger {
+    /* let us position ourself inside the container */
+    position: absolute;
+    /* make our position the top left of the container */
+    left: 0;
+    top: 0;
+    font-size: 0.5rem;
+    color: white;
+  }
+
+  #logger>ul {
+    /* let us position them inside the container */
+    position: absolute;
+    /* make their default position the top left of the container */
+    left: 0;
+    top: 0;
+    /* change the cursor to a hand when over us */
+    cursor: pointer;
+    /* don't let the text get selected */
+    user-select: none;
+  }
+  
+  #logger>li {
+    list-style-type:disc;
+    margin:0;
+  }
+
+  #logger>li:hover {
+    color: red;
+  }
+</style>
+
+<script>const gltfResource = "[: _resource_ :]"; </script>
+
+
+<script type="module">
+
+  import * as THREE from 'three';
+
+  import { OrbitControls } from 'OrbitControls.js';
+  import { GLTFLoader } from 'GLTFLoader.js';
+  import { RGBELoader } from 'RGBELoader.js';
+
+  const context = {
+    camera: null,
+    scene: null,
+    renderer: null,
+    glContainer: null,
+    logger: null,
+    controls: null,
+    aspect: 16 / 9,
+    ratio: 0
+  }
+
+  init(context);
+  //render();
+  animate();
+
+
+
+  function init(acontext) {
+
+    const logger = [];
+    logger.push('Loading...');
+
+
+    const section = document.getElementById('content');
+    acontext.glContainer = document.createElement('div');
+    acontext.glContainer.id = 'glContainer';
+    section.appendChild(acontext.glContainer);
+    context.ratio = acontext.glContainer.clientWidth / window.innerWidth;
+
+    // Initialize renderer
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(acontext.glContainer.clientWidth, acontext.glContainer.clientWidth / acontext.aspect);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1;
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.setClearColor(0x888888);
+    acontext.glContainer.appendChild(renderer.domElement);
+    acontext.renderer = renderer;
+
+    // Setup logger output
+    acontext.logger = document.createElement('ul');
+    acontext.logger.id = 'logger';
+    acontext.glContainer.appendChild(acontext.logger);
+
+    ApgUlLogger('Loading...', acontext.logger, logger);
+
+    // Initialize camera
+    const camera = new THREE.PerspectiveCamera(45, acontext.aspect, 1, 10000);
+    camera.position.set(0, 2000, 5000);
+    acontext.camera = camera;
+    ApgUlLogger('Camera ok', acontext.logger, logger);
+
+    // Initialize scene
+    const scene = new THREE.Scene();
+    acontext.scene = scene;
+    ApgUlLogger('Scene ok', acontext.logger, logger);
+
+    // Initialize lights
+    const ambientLight = new THREE.AmbientLight(0x080808);
+    scene.add(ambientLight);
+
+    const pointLight = new THREE.PointLight(0xA0A0A0);
+    pointLight.position.copy(acontext.camera.position);
+    scene.add(pointLight);
+    ApgUlLogger('Lights ok', acontext.logger, logger);
+
+    // Texture loaders
+    const textureLoader = new THREE.TextureLoader();
+    textureLoader.crossOrigin = '';
+    textureLoader.setCrossOrigin("anonymous");
+
+    const textureImages = [
+      '/assets/img/gltf/maps/01_wood.png',
+      '/assets/img/gltf/maps/02_wood.png',
+      '/assets/img/gltf/maps/03_wood.png',
+      '/assets/img/gltf/maps/04_wood.png',
+      '/assets/img/gltf/maps/05_wood.png',
+      '/assets/img/gltf/maps/06_micaceus.png',
+    ]
+
+    const bumpImages = [
+      '/assets/img/gltf/bumps/01_stucco.png',
+    ]
+
+    const normalImages = [
+      '/assets/img/gltf/normals/01_woodgrain.png',
+    ]
+
+    const textureMaps = [{}, {}, {}, {}, {}];
+    const bumpMaps = [{}];
+    const normalMaps = [{}];
+
+    const promises = []
+
+    // Load texture Maps
+    for (let i = 0; i < textureImages.length; i++) {
+
+      textureLoader.load(
+        textureImages[i],
+        (atexture) => {
+          atexture.encoding = THREE.sRGBEncoding;
+          atexture.flipY = false;
+          atexture.wrapS = THREE.RepeatWrapping;
+          atexture.repeat.x = 4;
+          atexture.wrapT = THREE.RepeatWrapping;
+          atexture.repeat.y = 4;
+          textureMaps[i] = atexture;
+          ApgUlLogger(textureImages[i] + ' ok', acontext.logger, logger);
+
+          if (i == 1) {
+            // Create textured Box stub
+            var box = new THREE.Mesh(
+              new THREE.BoxGeometry(100, 100, 100),
+              new THREE.MeshPhongMaterial({
+                color: 0xFFFFFF,
+                map: atexture
+              }));
+            // add the box mesh to the scene
+            //acontext.scene.add(box);
+            ApgUlLogger('Stub ok', acontext.logger, logger);
+          }
+        },
+        undefined, // progress callback
+        (aerr) => { console.error(aerr) } // error callback
+      );
+
+    }
+
+    // Load Bump Maps
+    textureLoader.load(
+      bumpImages[0],
+      (atexture) => {
+        atexture.encoding = THREE.sRGBEncoding;
+        atexture.flipY = false;
+        atexture.wrapS = THREE.RepeatWrapping;
+        atexture.wrapT = THREE.RepeatWrapping;
+        atexture.repeat.x = 2;
+        atexture.repeat.y = 2;
+        bumpMaps[0] = atexture;
+        ApgUlLogger('Bump Map ok', acontext.logger, logger);
+      },
+      undefined,
+      (aerr) => { console.error(aerr) }
+    );
+
+    // Load normal maps
+    textureLoader.load(
+      normalImages[0],
+      (atexture) => {
+        atexture.encoding = THREE.sRGBEncoding;
+        atexture.flipY = false;
+        atexture.wrapS = THREE.RepeatWrapping;
+        atexture.wrapT = THREE.RepeatWrapping;
+        atexture.repeat.x = 2;
+        atexture.repeat.y = 2;
+        normalMaps[0] = atexture;
+        ApgUlLogger('Normal Map ok', acontext.logger, logger);
+      },
+      undefined,
+      (aerr) => { console.error(aerr) }
+    );
+
+    // Setup Background HDRS
+    const hdrPath = "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/";
+    const hdrFiles = [
+      'red_wall_1k.hdr',
+      'palermo_square_1k.hdr',
+      'residential_garden_1k.hdr'
+    ]
+    const currentHDRIndex = Math.floor(Math.random() * 3);
+
+    // Load HDR scene Background
+    const hdrLoader = new RGBELoader();
+    hdrLoader.setPath(hdrPath);
+    const hdrLoaderResult = hdrLoader
+      .load(hdrFiles[currentHDRIndex], (texture) => {
+        texture.mapping = THREE.EquirectangularReflectionMapping;
+        acontext.scene.background = texture;
+        acontext.scene.environment = texture;
+        ApgUlLogger(hdrFiles[currentHDRIndex] + ' ok', acontext.logger, logger);
+        render();
+      });
+
+    // Gltf model
+    const gltfLoader = new GLTFLoader();
+    // gltfResource comes from the external script injected into the page
+    const gltfLoaderResult = gltfLoader
+      .load(gltfResource, (gltf) => {
+        ApgUlLogger(gltfResource + ' ok', acontext.logger, logger);
+        gltf.scene.traverse((aGltfNode) => {
+          if (aGltfNode.isMesh) {
+            //console.log(aGltfNode.material.name);
+            const materialAttributes = aGltfNode.material.name.split('_');
+
+            if (materialAttributes[0] == 'Textured') {
+              let textureIndex = +materialAttributes[1] - 1;
+              textureIndex = textureIndex % textureMaps.length;
+              aGltfNode.material.map = textureMaps[textureIndex];
+              aGltfNode.material.color = new THREE.Color(1, 1, 1);
+            }
+            else if (materialAttributes[0] == 'Bumped') {
+              let bumpIndex = +materialAttributes[1] - 1;
+              bumpIndex = bumpIndex % bumpMaps.length;
+              aGltfNode.material.bumpMap = bumpMaps[bumpIndex];
+              aGltfNode.material.bumpScale = 0.5; // depth of the bump effect
+            }
+            else if (materialAttributes[0] == 'Normaled') {
+              let normalIndex = +materialAttributes[1] - 1;
+              normalIndex = normalIndex % normalMaps.length;
+              aGltfNode.material.normalMap = normalMaps[normalIndex];
+            }
+
+            const uvs = aGltfNode.geometry.attributes.uv.array;
+            let maxu = 0;
+            let minu = 0;
+            let maxv = 0;
+            let minv = 0;
+            for (let i = 0; i < uvs.length; i += 2) {
+              if (uvs[i] > maxu) {
+                //console.log(i, maxu, uvs[i]);
+                maxu = uvs[i];
+              }
+              if (uvs[i] < minu) {
+                //console.log(i, minu, uvs[i]);
+                minu = uvs[i];
+              }
+              if (uvs[i + 1] > maxv) maxv = uvs[i + 1];
+              if (uvs[i + 1] < minv) minv = uvs[i + 1];
+            }
+            console.log(minu, maxu, minv, maxv);
+            const deltau = maxu - minu;
+            const deltav = maxv - minv;
+            for (let i = 0; i < uvs.length; i += 2) {
+              uvs[i] = uvs[i] / deltau + 0.5;
+              uvs[i + 1] = uvs[i + 1] / deltav + 0.5;
+            }
+            //console.log(uvs);
+
+            //console.log(aGltfNode.material.color);
+            // if (aGltfNode.material.map?.repeat) {
+            //   aGltfNode.material.map.repeat.x = 1;
+            //   aGltfNode.material.map.repeat.y = 1;
+            // }
+            // else {
+            //   console.log(aGltfNode.material.name);
+            // }
+            aGltfNode.material.needsUpdate = true;
+            // console.log(aGltfNode.material);
+            // console.log(aGltfNode.geometry);
+          };
+        });
+        ApgUlLogger('Materials ok', acontext.logger, logger);
+        acontext.scene.add(gltf.scene);
+        render();
+      });
+
+
+
+    const controls = new OrbitControls(acontext.camera, acontext.renderer.domElement);
+    controls.minDistance = 2;
+    controls.maxDistance = 500;
+    controls.target.set(0, 0, 0);
+    controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+    controls.dampingFactor = 0.05;
+    controls.screenSpacePanning = true;
+    controls.maxPolarAngle = Math.PI / 2;
+    controls.listenToKeyEvents(window); // optional
+    controls.update();
+    //controls.addEventListener('change', render); // use if there is no animation loop
+    context.controls = controls;
+    ApgUlLogger('Controls ok', acontext.logger, logger);
+
+    window.addEventListener('resize', onWindowResize);
+
+  }
+
+  function onWindowResize() {
+
+    context.camera.aspect = context.aspect;
+    context.camera.updateProjectionMatrix();
+
+    const newWidth = context.ratio * window.innerWidth;
+
+    context.renderer.setSize(
+      newWidth,
+      newWidth / context.aspect
+    );
+
+    render();
+
+  }
+
+  function animate() {
+
+    requestAnimationFrame(animate);
+
+    context.controls.update(); // only required if controls.enableDamping = true, or if controls.autoRotate = true
+
+    render();
+
+  }
+
+  function render() {
+
+    context.renderer.render(context.scene, context.camera);
+
+  }
+
+</script>

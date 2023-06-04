@@ -1,18 +1,20 @@
 /** -----------------------------------------------------------------------
- * @module [GLTF]
+ * @module [apg-wgl]
  * @author [APG] ANGELI Paolo Giusto
  * @version 0.8.0 [APG 2022/05/14]
  * -----------------------------------------------------------------------
  */
 
-import { THREE } from "../../../deps.ts";
+import { Uts, THREE } from "../deps.ts";
 
-import { ApgUtils } from "../../Utils/mod.ts"
-
-export class ApgGltfShapeHelper {
+export class ApgWglShapeHelper {
 
 
-  public static getRandomPoligon(aradious: number, aminVertexN = 3, amaxVertexNum = 12) {
+  public static getRandomPoligon(
+    aradious: number,
+    aminVertexN = 3,
+    amaxVertexNum = 12
+  ) {
     const r = [];
     if (amaxVertexNum > 15) amaxVertexNum = 15;
     const delta = amaxVertexNum - aminVertexN;
@@ -25,8 +27,8 @@ export class ApgGltfShapeHelper {
       const y = Math.sin(angle) * radious;
       r.push(
         new THREE.Vector2(
-          ApgUtils.Math_RoundToSignificant(x, 3),
-          ApgUtils.Math_RoundToSignificant(y, 3)
+          Uts.ApgUtsMath.RoundToSignificant(x, 3),
+          Uts.ApgUtsMath.RoundToSignificant(y, 3)
         )
       );
     }
@@ -51,8 +53,8 @@ export class ApgGltfShapeHelper {
       const y = Math.sin(angle) * radious;
       r.push(
         new THREE.Vector2(
-          ApgUtils.Math_RoundToSignificant(x, 3),
-          ApgUtils.Math_RoundToSignificant(y, 3)
+          Uts.ApgUtsMath.RoundToSignificant(x, 3),
+          Uts.ApgUtsMath.RoundToSignificant(y, 3)
         )
       );
     }

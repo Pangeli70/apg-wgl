@@ -1,53 +1,42 @@
 /** -----------------------------------------------------------------------
- * @module [GLTF]
+ * @module [apg-wgl]
  * @author [APG] ANGELI Paolo Giusto
  * @version 0.8.0 [APG 2022/04/29-2022/06/05]
  * -----------------------------------------------------------------------
  */
-import {
-  THREE,
-  StdPath
-} from "../../../deps.ts";
 
-import {
-  ApgUtils, ApgUtilsDateTimeStamp
-} from '../../Utils/mod.ts';
-
-import {
-  ApgGltf
-} from '../src/classes/ApgGltf.ts';
-
-import {
-  ApgGltfMaterialsHelper,
-  eApgGltfMaterialTypes
-} from './ApgGltfMaterialsHelper.ts';
-
-import {
-  ApgGltfExtrusionHelper,
-  IApgGltfPolylineExtrusionSettings
-} from './ApgGltfExtrusionHelper.ts'
+import { ApgWglService } from "../../lib/mod.ts";
+import { Uts, Spc, Wgl, THREE } from "../deps.ts";
 
 
 
-export class ApgGltfTester {
+export class ApgWglSpec extends Spc.ApgSpcSpec {
+
+  constructor() {
+    super(import.meta.url)
+
+    this.flags = {
+      [this._closedSplinesScene.name]: Spc.eApgSpcRun.yes
+    }
+
+    this._outputPath = ApgWglService.TestOutputPath;
+    this._materials = Wgl.ApgWglMaterialsHelper.prepareTestMaterials(this.MATERIALS_NUM);
+
+  }
 
   readonly MATERIALS_NUM = 9;
 
   private _outputPath = '';
   private _materials: Map<string, THREE.Material[]> = new Map();
 
-  constructor(apath: string) {
-    this._outputPath = apath;
-    this._materials = ApgGltfMaterialsHelper.prepareTestMaterials(this.MATERIALS_NUM);
-  }
-
+  materialType = Wgl.eApgWglMaterialTypes.PhongFlatMaterials;
 
   private _closedSplinesScene(
     anx: number,
     anz: number,
     adeltax: number,
     adeltaz: number,
-    amaterialType: eApgGltfMaterialTypes,
+    amaterialType: Wgl.eApgWglMaterialTypes,
     aflatShading: boolean
   ) {
 
@@ -68,7 +57,7 @@ export class ApgGltfTester {
     let matIndex = 0;
     for (let x = 0; x < nx; x++) {
       for (let z = 0; z < nz; z++) {
-        let geometry = ApgGltfExtrusionHelper.randomShape_Extrusion_Along_ClosedSpline();
+        let geometry = Wgl.ApgWglExtrusionHelper.randomShape_Extrusion_Along_ClosedSpline();
         geometry.scale(0.5, 0.5, 0.5);
         const px = ox + (x * stepX);
         const pz = oz + (z * stepZ);
@@ -77,12 +66,12 @@ export class ApgGltfTester {
 
         const material = this._materials.get(amaterialType)![matIndex];
 
-        if(aflatShading){
+        if (aflatShading) {
           const newGeometry = geometry.toNonIndexed();
           newGeometry.computeVertexNormals();
-          geometry = <THREE.ExtrudeBufferGeometry>newGeometry; // This cast is a hack
+          geometry = <THREE.ExtrudeGeometry>newGeometry; // This cast is a hack
         }
-        
+
         const mesh = new THREE.Mesh(geometry, <any>material);
         scene.add(mesh);
         matIndex++;
@@ -100,7 +89,7 @@ export class ApgGltfTester {
     anz: number,
     adeltax: number,
     adeltaz: number,
-    amaterialType: eApgGltfMaterialTypes,
+    amaterialType: Wgl.eApgWglMaterialTypes,
     aflatShading: boolean
   ) {
 
@@ -121,17 +110,17 @@ export class ApgGltfTester {
     let matIndex = 0;
     for (let x = 0; x < nx; x++) {
       for (let z = 0; z < nz; z++) {
-        let geometry = ApgGltfExtrusionHelper.randomShape_Extrusion_Along_OpenedSpline();
+        let geometry = Wgl.ApgWglExtrusionHelper.randomShape_Extrusion_Along_OpenedSpline();
         geometry.scale(0.5, 0.5, 0.5);
         const px = ox + (x * stepX);
         const pz = oz + (z * stepZ);
         //console.log(`px: ${px} pz: ${pz}`);
         geometry.translate(px, 0, pz);
 
-        if(aflatShading){
+        if (aflatShading) {
           const newGeometry = geometry.toNonIndexed();
           newGeometry.computeVertexNormals();
-          geometry = <THREE.ExtrudeBufferGeometry>newGeometry; // This cast is a hack
+          geometry = <THREE.ExtrudeGeometry>newGeometry; // This cast is a hack
         }
 
         const material = this._materials.get(amaterialType)![matIndex];
@@ -152,7 +141,7 @@ export class ApgGltfTester {
     anz: number,
     adeltax: number,
     adeltaz: number,
-    amaterialType: eApgGltfMaterialTypes,
+    amaterialType: Wgl.eApgWglMaterialTypes,
     aflatShading: boolean,
     adrawGenerators: boolean
   ) {
@@ -179,7 +168,7 @@ export class ApgGltfTester {
         const px = ox + (x * stepX);
         const pz = oz + (z * stepZ);
 
-        const extrudeSettings: IApgGltfPolylineExtrusionSettings = {
+        const extrudeSettings: Wgl.IApgWglPolylineExtrusionSettings = {
           nodes: 4,
           segmentLength: 50,
           maxDistance: 5,
@@ -188,15 +177,15 @@ export class ApgGltfTester {
           capped: false
         };
 
-        const generators = ApgGltfExtrusionHelper.randomShape_Extrusion_Along_PolyLine_Generators(extrudeSettings)
-        let geometry = ApgGltfExtrusionHelper.randomShape_Extrusion_Along_PolyLine(generators, extrudeSettings);
+        const generators = Wgl.ApgWglExtrusionHelper.randomShape_Extrusion_Along_PolyLine_Generators(extrudeSettings)
+        let geometry = Wgl.ApgWglExtrusionHelper.randomShape_Extrusion_Along_PolyLine(generators, extrudeSettings);
         //geometry.scale(0.5, 0.5, 0.5);
         geometry.translate(px, 0, pz);
 
-        if(aflatShading){
+        if (aflatShading) {
           const newGeometry = geometry.toNonIndexed();
           newGeometry.computeVertexNormals();
-          geometry = <THREE.ExtrudeBufferGeometry>newGeometry; // This cast is a hack
+          geometry = <THREE.ExtrudeGeometry>newGeometry; // This cast is a hack
         }
 
         const material = this._materials.get(amaterialType)![matIndex];
@@ -204,7 +193,7 @@ export class ApgGltfTester {
         scene.add(mesh);
 
         if (adrawGenerators) {
-          const generatorsGeom = ApgGltfExtrusionHelper.randomShape_Extrusion_Along_PolyLine_Generators_Geometry(generators);
+          const generatorsGeom = Wgl.ApgWglExtrusionHelper.randomShape_Extrusion_Along_PolyLine_Generators_Geometry(generators);
           generatorsGeom.translate(px, 0, pz);
           const lineMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff });
           const line = new THREE.Line(generatorsGeom, <any>lineMaterial);
@@ -223,7 +212,7 @@ export class ApgGltfTester {
     anz: number,
     adeltax: number,
     adeltaz: number,
-    amaterialType: eApgGltfMaterialTypes,
+    amaterialType: Wgl.eApgWglMaterialTypes,
     aflatShading: boolean
   ) {
 
@@ -250,17 +239,17 @@ export class ApgGltfTester {
         const px = ox + (x * stepX);
         const pz = oz + (z * stepZ);
 
-        let geometry = ApgGltfExtrusionHelper.randomShape_Extrusion_Along_Line();
+        let geometry = Wgl.ApgWglExtrusionHelper.randomShape_Extrusion_Along_Line();
         //geometry.scale(0.5, 0.5, 0.5);
         geometry.translate(px, 0, pz);
         const material = this._materials.get(amaterialType)![matIndex];
         const mesh = new THREE.Mesh(geometry, <any>material);
         scene.add(mesh);
 
-        if(aflatShading){
+        if (aflatShading) {
           const newGeometry = geometry.toNonIndexed();
           newGeometry.computeVertexNormals();
-          geometry = <THREE.ExtrudeBufferGeometry>newGeometry; // This cast is a hack
+          geometry = <THREE.ExtrudeGeometry>newGeometry; // This cast is a hack
         }
 
         //console.log(`Added mesh to scene (${x},${z})`);
@@ -272,33 +261,33 @@ export class ApgGltfTester {
   }
 
 
-  private async _save(ascene: any, afileName: string, aisProd: boolean) {
+  private async _save(ascene: THREE.Scene, afileName: string, aisProd: boolean) {
 
     // We don't have write permissions in production
     if (aisProd) {
       return;
     }
 
-    const file = StdPath.normalize(this._outputPath + afileName + '.gltf');
-    const r = await ApgGltf.exportGLTF(ascene, file);
+    const file = Uts.Std.Path.resolve(this._outputPath + afileName + '.gltf');
+    const r = await Wgl.ApgWglGltf.exportGLTF(ascene, file);
     return r;
   }
 
 
-  async runTests(afolder: string, aisProduction: boolean) {
+  override async execute() {
 
-    if (!aisProduction) {
-      ApgUtils.Fs_ClearFolderSync(this._outputPath);
+    if (!Uts.ApgUtsIs.IsDeploy()) {
+      Uts.ApgUtsFs.ClearFolderSync(this._outputPath);
 
       for (let i = 0; i < 4; i++) {
-      //for (let i = 2; i < 4; i++) {
+        //for (let i = 2; i < 4; i++) {
         const rx = Math.trunc((Math.random() * 3) + 2);
         const rz = Math.trunc((Math.random() * 3) + 2);
         let scene = undefined;
-        const materialType = <eApgGltfMaterialTypes>afolder;
-        
+        const materialType = this.materialType;
+
         let isFlatShading = false;
-        if(materialType.toLowerCase().indexOf("flat")!== -1 ){
+        if (materialType.toLowerCase().indexOf("flat") !== -1) {
           isFlatShading = true;
         }
 
@@ -316,11 +305,11 @@ export class ApgGltfTester {
           scene = this._linearExtrusionsScene(rx, rz, 200, 200, materialType, isFlatShading);
           fileName = "LinearExtrusionTest";
         }
-        const dateTimeStamp = new ApgUtilsDateTimeStamp(new Date()).Value;
+        const dateTimeStamp = new Uts.ApgUtsDateTimeStamp(new Date()).Stamp;
         await this._save(
           scene,
           i.toString() + "_" + fileName + "_" + dateTimeStamp,
-          aisProduction
+          Uts.ApgUtsIs.IsDeploy()
         )
       }
     }

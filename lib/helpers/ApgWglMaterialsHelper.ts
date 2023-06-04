@@ -1,29 +1,15 @@
 /** -----------------------------------------------------------------------
- * @module [GLTF]
+ * @module [apg-wgl]
  * @author [APG] ANGELI Paolo Giusto
  * @version 0.8.0 [APG 2022/05/14]
  * -----------------------------------------------------------------------
  */
 
-import { THREE } from "../../../deps.ts";
+import { THREE} from "../deps.ts";
+import { eApgWglMaterialTypes } from "../enums/eApgWglMaterialTypes.ts";
 
 
-export enum eApgGltfMaterialTypes {
-  LineMaterials = 'LineMats',
-  WireframeMaterials = 'wireframe_mats',
-  LambertMaterials = 'lambert_mats',
-  PhongMaterials = 'phong_mats',
-  PhongFlatMaterials = 'phong_flat_mats',
-  PhongTranspMaterials = 'phong_transp_mats',
-  PhongTexturedMaterials = 'phong_txtrd_mats',
-  PhongBumpedMaterials = 'phong_bumped_mats',
-  StdMaterials = 'std_mats',
-  StdTexturedMaterials = 'std_txtrd_mats',
-  StdNormaledMaterials = 'std_nrmled_mats',
-}
-
-
-export class ApgGltfMaterialsHelper {
+export class ApgWglMaterialsHelper {
 
   public static randomRgb(amin = 0, amax = 1) {
     const delta = amax - amin;
@@ -261,48 +247,48 @@ export class ApgGltfMaterialsHelper {
     const materials: Map<string, THREE.Material[]> = new Map();
 
     materials.set(
-      eApgGltfMaterialTypes.LineMaterials,
-      ApgGltfMaterialsHelper.makeRandomColorLineMaterials(anumPerType)
+      eApgWglMaterialTypes.LineMaterials,
+      ApgWglMaterialsHelper.makeRandomColorLineMaterials(anumPerType)
     );
     materials.set(
-      eApgGltfMaterialTypes.WireframeMaterials,
-      ApgGltfMaterialsHelper.makeRandomColorWireframeMaterials(anumPerType)
+      eApgWglMaterialTypes.WireframeMaterials,
+      ApgWglMaterialsHelper.makeRandomColorWireframeMaterials(anumPerType)
     );
     materials.set(
-      eApgGltfMaterialTypes.LambertMaterials,
-      ApgGltfMaterialsHelper.makeRandomColorLambertMaterials(anumPerType)
+      eApgWglMaterialTypes.LambertMaterials,
+      ApgWglMaterialsHelper.makeRandomColorLambertMaterials(anumPerType)
     );
     materials.set(
-      eApgGltfMaterialTypes.PhongMaterials,
-      ApgGltfMaterialsHelper.makeRandomColorPhongMaterials(anumPerType)
+      eApgWglMaterialTypes.PhongMaterials,
+      ApgWglMaterialsHelper.makeRandomColorPhongMaterials(anumPerType)
     );
     materials.set(
-      eApgGltfMaterialTypes.PhongFlatMaterials,
-      ApgGltfMaterialsHelper.makeRandomColorFlatPhongMaterials(anumPerType)
+      eApgWglMaterialTypes.PhongFlatMaterials,
+      ApgWglMaterialsHelper.makeRandomColorFlatPhongMaterials(anumPerType)
     );
     materials.set(
-      eApgGltfMaterialTypes.PhongTranspMaterials,
-      ApgGltfMaterialsHelper.makeRandomColorTransparentPhongMaterials(anumPerType)
+      eApgWglMaterialTypes.PhongTranspMaterials,
+      ApgWglMaterialsHelper.makeRandomColorTransparentPhongMaterials(anumPerType)
     );
     materials.set(
-      eApgGltfMaterialTypes.PhongTexturedMaterials,
-      ApgGltfMaterialsHelper.makeRandomColorTexturedPhongMaterials(anumPerType)
+      eApgWglMaterialTypes.PhongTexturedMaterials,
+      ApgWglMaterialsHelper.makeRandomColorTexturedPhongMaterials(anumPerType)
     );
     materials.set(
-      eApgGltfMaterialTypes.PhongBumpedMaterials,
-      ApgGltfMaterialsHelper.makeRandomColorBumpedPhongMaterials(anumPerType)
+      eApgWglMaterialTypes.PhongBumpedMaterials,
+      ApgWglMaterialsHelper.makeRandomColorBumpedPhongMaterials(anumPerType)
     );
     materials.set(
-      eApgGltfMaterialTypes.StdMaterials,
-      ApgGltfMaterialsHelper.makeRandomColorStdMaterials(anumPerType)
+      eApgWglMaterialTypes.StdMaterials,
+      ApgWglMaterialsHelper.makeRandomColorStdMaterials(anumPerType)
     );
     materials.set(
-      eApgGltfMaterialTypes.StdTexturedMaterials,
-      ApgGltfMaterialsHelper.makeRandomColorTexturedStdMaterials(anumPerType)
+      eApgWglMaterialTypes.StdTexturedMaterials,
+      ApgWglMaterialsHelper.makeRandomColorTexturedStdMaterials(anumPerType)
     );
     materials.set(
-      eApgGltfMaterialTypes.StdNormaledMaterials,
-      ApgGltfMaterialsHelper.makeRandomColorNormaledStdMaterials(anumPerType)
+      eApgWglMaterialTypes.StdNormaledMaterials,
+      ApgWglMaterialsHelper.makeRandomColorNormaledStdMaterials(anumPerType)
     );
 
     return materials;

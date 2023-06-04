@@ -1,36 +1,25 @@
 // deno-lint-ignore-file no-explicit-any
 /** -----------------------------------------------------------------------
- * @module [GLTF]
+ * @module [apg-wgl]
  * @author [APG] ANGELI Paolo Giusto
  * @version 0.8.0 [APG 2022/05/14-2022/06/05]
  * -----------------------------------------------------------------------
  */
 
-import { THREE } from "../../../deps.ts";
+import { A2D, THREE } from "../deps.ts";
+import { IApgWglPolylineExtrusionSettings } from "../interfaces/IApgWglPolylineExtrusionSettings.ts";
 
-import { Apg2DUtility } from "../../2D/mod.ts"
-
-import { ApgGltfProfileHelper } from './ApgGltfProfileHelper.ts'
-import { ApgGltfShapeHelper } from './ApgGltfShapeHelper.ts'
-
-export interface IApgGltfPolylineExtrusionSettings {
-  nodes: number;
-  segmentLength: number;
-  maxDistance: number;
-  maxAngleDeg: number;
-  closed: boolean;
-  capped: boolean;
-}
+import { ApgWglProfileHelper } from './ApgWglProfileHelper.ts'
+import { ApgWglShapeHelper } from './ApgWglShapeHelper.ts'
 
 
-
-export class ApgGltfExtrusionHelper {
+export class ApgWglExtrusionHelper {
 
 
   public static randomShape_Extrusion_Along_ClosedSpline() {
     const edges = Math.round(Math.random() * 9) + 6; // always even
     const steps = edges * 20; // more edges more steps
-    const closedSpline = ApgGltfProfileHelper.getRandomizedStarShapeSplineProfile(edges);
+    const closedSpline = ApgWglProfileHelper.getRandomizedStarShapeSplineProfile(edges);
 
     const extrudeSettings = {
       steps: steps,
@@ -38,8 +27,8 @@ export class ApgGltfExtrusionHelper {
       extrudePath: closedSpline
     };
     const shapePoints = (Math.random() > 0.5) ?
-      ApgGltfShapeHelper.getRandomStar(30, 25) :
-      ApgGltfShapeHelper.getRandomPoligon(20);
+      ApgWglShapeHelper.getRandomStar(30, 25) :
+      ApgWglShapeHelper.getRandomPoligon(20);
     const shape = new THREE.Shape(shapePoints);
 
     const r = new THREE.ExtrudeGeometry(shape, extrudeSettings);
@@ -48,15 +37,15 @@ export class ApgGltfExtrusionHelper {
 
 
   public static randomShape_Extrusion_Along_OpenedSpline() {
-    const openedSpline = ApgGltfProfileHelper.getRandomizedLineSplineProfile();
+    const openedSpline = ApgWglProfileHelper.getRandomizedLineSplineProfile();
     const extrudeSettings = {
       steps: 100,
       bevelEnabled: false,
       extrudePath: openedSpline
     };
     const shapePoints = (Math.random() > 0.5) ?
-      ApgGltfShapeHelper.getRandomStar(30, 20) :
-      ApgGltfShapeHelper.getRandomPoligon(20);
+      ApgWglShapeHelper.getRandomStar(30, 20) :
+      ApgWglShapeHelper.getRandomPoligon(20);
     const shape = new THREE.Shape(shapePoints);
 
     const r = new THREE.ExtrudeGeometry(shape, extrudeSettings);
@@ -67,17 +56,17 @@ export class ApgGltfExtrusionHelper {
 
 
   public static randomShape_Extrusion_Along_PolyLine_Generators(
-    aoptions: IApgGltfPolylineExtrusionSettings
+    aoptions: IApgWglPolylineExtrusionSettings
   ) {
 
-    const polyLine = ApgGltfProfileHelper.getRandomizedXYPolyline(
+    const polyLine = ApgWglProfileHelper.getRandomizedXYPolyline(
       aoptions.nodes,
       aoptions.segmentLength,
       aoptions.maxAngleDeg
     );
     const shapePoints = (Math.random() > 0.5) ?
-      ApgGltfShapeHelper.getRandomStar(30, 25, 3, 4) :
-      ApgGltfShapeHelper.getRandomPoligon(30, 3, 4);
+      ApgWglShapeHelper.getRandomStar(30, 25, 3, 4) :
+      ApgWglShapeHelper.getRandomPoligon(30, 3, 4);
     const shape = new THREE.Shape(shapePoints);
 
     return { shape, polyLine };
@@ -86,7 +75,7 @@ export class ApgGltfExtrusionHelper {
 
   public static randomShape_Extrusion_Along_PolyLine(
     agenerators: { shape: THREE.Shape, polyLine: THREE.Vector2[] },
-    aoptions: IApgGltfPolylineExtrusionSettings
+    aoptions: IApgWglPolylineExtrusionSettings
   ) {
     const r = this._polyLineExtrusion(
       agenerators.shape,
@@ -116,8 +105,8 @@ export class ApgGltfExtrusionHelper {
       bevelSegments: 1
     };
     const shapePoints = (Math.random() > 0.5) ?
-      ApgGltfShapeHelper.getRandomStar(30, 10) :
-      ApgGltfShapeHelper.getRandomPoligon(20);
+      ApgWglShapeHelper.getRandomStar(30, 10) :
+      ApgWglShapeHelper.getRandomPoligon(20);
 
     const shape = new THREE.Shape(shapePoints);
 
@@ -127,7 +116,7 @@ export class ApgGltfExtrusionHelper {
 
 
   private static _log(alog: string[], atext: string, anum: number, aradToDeg = false) {
-    const num = aradToDeg ? Apg2DUtility.radToDeg(anum) : anum;
+    const num = aradToDeg ? A2D.Apg2DUtility.RadToDeg(anum) : anum;
     const entry = atext + ":" + num.toString();
     alog.push(entry);
   }
@@ -162,7 +151,7 @@ export class ApgGltfExtrusionHelper {
     apathCapped = apathClosed === true ? false : apathCapped;
 
     // ProfileShape is on X-Y plane
-    const profileGeometry = new THREE.ShapeBufferGeometry(aprofileShape);
+    const profileGeometry = new THREE.ShapeGeometry(aprofileShape);
 
     // Transpose profile on plane X-Z
     profileGeometry.rotateX(rad90);
@@ -251,7 +240,7 @@ export class ApgGltfExtrusionHelper {
       const offset = clonedProfile.count * i * 3;
       extrusionPoints.set(clonedProfile.array, offset);
 
-      if (apathCapped === true){
+      if (apathCapped === true) {
         if (i === 0 || i === lastI) {
           capProfiles.push(clonedProfile);
         }
@@ -292,32 +281,32 @@ export class ApgGltfExtrusionHelper {
   }
 
   private static _copyIndexesFromShapeCaps(
-    profileGeometry: THREE.ShapeBufferGeometry,
+    profileGeometry: THREE.ShapeGeometry,
     aprofileNodes: number,
     apathLenght: number,
     aindexBuffer: number[]
   ) {
     // Base cap
     const flippedProfileGeometry = this._flipShapeProfileGeometry(profileGeometry);
-    flippedProfileGeometry.index.array.forEach((index: number) => {
+    flippedProfileGeometry.index?.array.forEach((index: number) => {
       const offset = aprofileNodes * apathLenght;
       aindexBuffer.push(offset + index);
     });
     // Top Cap
-    profileGeometry.index.array.forEach((index: number) => {
+    profileGeometry.index?.array.forEach((index: number) => {
       const offset = aprofileNodes * (apathLenght + 1);
       aindexBuffer.push(offset + index);
     });
   }
 
-  private static _flipShapeProfileGeometry(ashapeGeometry: THREE.ShapeBufferGeometry) {
+  private static _flipShapeProfileGeometry(ashapeGeometry: THREE.ShapeGeometry) {
     const flippedGeometry = ashapeGeometry.clone();
     for (let i = 0; i < flippedGeometry.attributes.position.count; i++) {
       flippedGeometry.attributes.position.array[i * 3] *= -1;
     }
     flippedGeometry.attributes.position.needsUpdate = true;
 
-    const indexes: number[] = flippedGeometry.index.array;
+    const indexes = flippedGeometry.index.array;
     // invert triangle creation order
     for (let i = 0; i < indexes.length; i += 3) {
       const tmp = indexes[i + 1];
@@ -384,7 +373,7 @@ export class ApgGltfExtrusionHelper {
 
     const points: THREE.Vector3[] = [];
 
-    const profileGeometry = new THREE.ShapeBufferGeometry(aprofileShape);
+    const profileGeometry = new THREE.ShapeGeometry(aprofileShape);
     const profile = profileGeometry.getAttribute('position');
     // Transpose profile on plane X-Z
     for (let i = 0; i < profile.array.length; i += 3) {

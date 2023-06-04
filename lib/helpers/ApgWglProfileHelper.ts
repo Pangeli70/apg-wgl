@@ -1,25 +1,22 @@
 /** -----------------------------------------------------------------------
- * @module [GLTF]
+ * @module [apg-wgl]
  * @author [APG] ANGELI Paolo Giusto
  * @version 0.8.0 [APG 2022/05/14]
  * -----------------------------------------------------------------------
  */
 
-import { THREE } from "../../../deps.ts";
+import { THREE } from "../deps.ts";
+import { eApgWglCatmullRomTypes } from "../enums/eApgWglCatmullRomTypes.ts";
 
 
-export enum eApgGltfCatmullRomTypes {
-  centripetal = 'centipetal',
-  chordal = 'chordal',
-  catmullrom = 'catmullrom'
-}
 
-export class ApgGltfProfileHelper {
+export class ApgWglProfileHelper {
 
-  public static getRandomizedLineSplineProfile(asplineType = eApgGltfCatmullRomTypes.catmullrom) {
+  public static getRandomizedLineSplineProfile(
+    asplineType: THREE.CurveType = eApgWglCatmullRomTypes.catmullrom
+  ) {
     const randomizedLineNodes = this._getRandomized3DNodesAlongYAxis();
-    const openedSpline = new THREE.CatmullRomCurve3(randomizedLineNodes, false);
-    openedSpline.type = asplineType;
+    const openedSpline = new THREE.CatmullRomCurve3(randomizedLineNodes, false, asplineType);
     return openedSpline;
   }
 
@@ -47,10 +44,12 @@ export class ApgGltfProfileHelper {
     return randomPoints;
   }
 
-  public static getRandomizedStarShapeSplineProfile(aedges: number, asplineType = eApgGltfCatmullRomTypes.catmullrom) {
+  public static getRandomizedStarShapeSplineProfile(
+    aedges: number,
+    asplineType: THREE.CurveType = eApgWglCatmullRomTypes.catmullrom
+  ) {
     const randomizedLineNodes = this._getRandomizedStarShapeNodes(aedges);
-    const closedSpline = new THREE.CatmullRomCurve3(randomizedLineNodes, true);
-    closedSpline.type = asplineType;
+    const closedSpline = new THREE.CatmullRomCurve3(randomizedLineNodes, true, asplineType);
     return closedSpline;
   }
 
