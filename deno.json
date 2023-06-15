@@ -1,6 +1,14 @@
 {
   "compilerOptions": {
-    "noImplicitOverride": true
+    "noImplicitOverride": true,
+    "target": "esnext",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "dom.asynciterable",
+      "deno.ns",
+      "deno.unstable"
+    ]
   },
   "tasks": {
     "run": "deno run -A --unstable --watch server.ts",

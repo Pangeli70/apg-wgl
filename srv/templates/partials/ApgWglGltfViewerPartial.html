@@ -11,12 +11,15 @@
       "three": "https://ga.jspm.io/npm:three@0.153.0/build/three.module.js",
       "OrbitControls.js": "https://ga.jspm.io/npm:three@0.153.0/examples/jsm/controls/OrbitControls.js",
       "GLTFLoader.js": "https://ga.jspm.io/npm:three@0.153.0/examples/jsm/loaders/GLTFLoader.js",
-      "RGBELoader.js": "https://ga.jspm.io/npm:three@0.153.0/examples/jsm/loaders/RGBELoader.js"
+      "RGBELoader.js": "https://ga.jspm.io/npm:three@0.153.0/examples/jsm/loaders/RGBELoader.js",
+      "EXRLoader.js": "https://ga.jspm.io/npm:three@0.153.0/examples/jsm/loaders/EXRLoader.js",
+      "GUI.js": "https://ga.jspm.io/npm:three@0.153.0/examples/jsm/libs/lil-gui.module.min.js"
     }
   }
 </script>
 
-<script src="/assets/js/ApgWglGltfViewer.js"></script>
+<script src="/assets/js/ApgWglTextureLoader.js" type="module"></script>
+<script src="/assets/js/ApgWglUiLogger.js" ></script>
 
 <script>const gltfResource = "[: _resource_ :]"; </script>
 
@@ -38,6 +41,11 @@
     controls: null,
     aspect: 16 / 9,
     ratio: 0
+  }
+
+  const settings = {
+    ambientColor : 0x808080,
+    directionalColor: 0xFFAA00
   }
 
   init(context);
@@ -88,10 +96,10 @@
     ApgUlLogger('Scene ok', acontext.logger, logger);
 
     // Initialize lights
-    const ambientLight = new THREE.AmbientLight(0x080808);
+    const ambientLight = new THREE.AmbientLight(settings.ambientColor);
     scene.add(ambientLight);
 
-    const pointLight = new THREE.PointLight(0xA0A0A0);
+    const pointLight = new THREE.PointLight(settings.directionalColor);
     pointLight.position.copy(acontext.camera.position);
     scene.add(pointLight);
     ApgUlLogger('Lights ok', acontext.logger, logger);
@@ -208,7 +216,8 @@
       .load(hdrFiles[currentHDRIndex], (texture) => {
         texture.mapping = THREE.EquirectangularReflectionMapping;
         acontext.scene.background = texture;
-        acontext.scene.environment = texture;
+        // If we set the environment the lights are overwritten
+        //acontext.scene.environment = texture;
         ApgUlLogger(hdrFiles[currentHDRIndex] + ' ok', acontext.logger, logger);
         render();
       });

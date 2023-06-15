@@ -1,0 +1,244 @@
+<link href="/assets/css/ApgWglGltfViewer.css" rel="stylesheet" type="text/css">
+
+
+<!-- Import maps polyfill -->
+<!-- Remove this when import maps will be widely supported -->
+<script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+
+
+<script>const gltfResource = "[: _resource_ :]"; </script>
+
+
+<script type="module">
+  import { ApgWglGltfViewer } from "/assets/ts/ApgWglGltfViewer.ts"
+
+
+  const viewer = new ApgWglGltfViewer();
+  window.ApgWglGltfViewer = viewer;
+
+  viewer.init(window, document, gltfResource);
+
+  animate();
+
+  window.addEventListener('resize', onWindowResize);
+
+
+  function onWindowResize() {
+
+    viewer.resize();
+
+  }
+
+  function animate() {
+
+    requestAnimationFrame(animate);
+
+    if (viewer.controls) {
+      viewer.controls.update(); // only required if controls.enableDamping = true, or if controls.autoRotate = true
+    }
+
+    viewer.render();
+
+  }
+
+
+
+</script>
+
+<section id="ApgWglGltfViewer">
+</section>
+<p style="text-align: right;">
+  <button type="button" id="openEnvSettingsDialog" style="max-width: 8rem; display: inline;"
+          onclick="openEnvSettingsDialog()">Environment</button>
+  <button type="button" id="openLightSettingsDialog" style="max-width: 8rem; display: inline;"
+          onclick="openLightSettingsDialog()" disabled>Lights</button>
+</p>
+
+
+<dialog id="envSettingsDialog">
+  <div style="min-width: 30rem">
+    <h3 style="text-align: center;">Environment Settings</h3>
+
+
+    <input id="envUseMap" name="envUseMap" type="checkbox" onchange="envUseMapChange()" />
+    <label for="envUseMap">Use env map instead than lights</label><br>
+    <br>
+
+    <input id="envUseExr" name="envUseExr" type="checkbox" onchange="envUseExrChange()" />
+    <label for="envUseExr">Use exr maps instead than hdr maps</label><br>
+    <br>
+
+    <p style="text-align: right;">
+      <button type="button" style="max-width: 8rem; display: inline;" onclick="envReloadMap()">Reload env</button>
+      <button type="button" style="max-width: 8rem; display: inline;" onclick="envReloadGltf()">Reload
+        Gltf</button>
+      <button type="button" style="max-width: 8rem; display: inline;"
+              onclick="closeEnvSettingsDialog()">Close</button>
+    </p>
+
+  </div>
+</dialog>
+
+
+<script>
+  const envControls = {
+    dialog: document.getElementById("envSettingsDialog"),
+    useEnvMapChkBox: document.getElementById("envUseMap"),
+    useExrChkBox: document.getElementById("envUseExr"),
+    lightsSettingsButton: document.getElementById("openLightSettingsDialog"),
+
+  }
+
+  window.onload = () => {
+    envControls.lightsSettingsButton.disabled = window.ApgWglGltfViewer.options.useEnvMapInsteadThanLights;
+  }
+
+  function openEnvSettingsDialog() {
+    envControls.useEnvMapChkBox.checked = window.ApgWglGltfViewer.options.useEnvMapInsteadThanLights;
+    envControls.useExrChkBox.checked = window.ApgWglGltfViewer.options.useExrInsteadThanHdr;
+
+    envControls.dialog.show();
+  }
+
+  function envUseMapChange() {
+    const viewer = window.ApgWglGltfViewer;
+    if (envControls.useEnvMapChkBox.checked) {
+      envControls.lightsSettingsButton.disabled = true;
+    }
+    else {
+      envControls.lightsSettingsButton.disabled = false;
+    }
+    viewer.options.useEnvMapInsteadThanLights = envControls.useEnvMapChkBox.checked;
+    setupLights();
+    viewer.render();
+  }
+
+
+  function setupLights() {
+    const viewer = window.ApgWglGltfViewer;
+    if (viewer.options.useEnvMapInsteadThanLights) {
+      viewer.scene.environment = viewer.currEnv;
+      viewer.ambientLight.visible = false;
+      viewer.directionalLight.visible = false;
+    } else {
+      viewer.scene.environment = null;
+      viewer.ambientLight.visible = true;
+      viewer.directionalLight.visible = true;
+    }
+  }
+
+  function envUseExrChange() {
+    const viewer = window.ApgWglGltfViewer;
+    viewer.options.useExrInsteadThanHdr = envControls.useExrChkBox.checked;
+  }
+
+  function envReloadMap() {
+    const viewer = window.ApgWglGltfViewer;
+    if (viewer.options.useExrInsteadThanHdr) {
+      viewer.initializeExrEnvMap();
+    } else {
+      viewer.initializeHdrEnvMap();
+    }
+
+    viewer.render();
+  }
+
+  function envReloadGltf() {
+    const gltfObject = window.ApgWglGltfViewer.scene.getObjectByName(window.ApgWglGltfViewer.gltfResource);
+    window.ApgWglGltfViewer.scene.remove(gltfObject);
+    window.ApgWglGltfViewer.loadGltf(window.ApgWglGltfViewer.gltfResource);
+  }
+
+  function closeEnvSettingsDialog() {
+    envControls.dialog.close();
+  }
+</script>
+
+
+<dialog id="lightSettingsDialog">
+  <div>
+
+    <p>Light Settings</p>
+
+    <label for="ambientLightIntensity">Ambient intensity</label>
+    <input id="ambientLightIntensity" name="ambientLightIntensity" type="range" min="0" max="1"
+           step="0.05" onchange="ambientLightIntensityChange()" />
+
+    <fieldset>
+      <legend>Directional:</legend>
+      <label for="directionalLightIntensity">Intensity</label>
+      <input id="directionalLightIntensity" name="directionalLightIntensity" type="range" min="0"
+             max="1" step="0.05" onchange="directionalLightIntensityChange()" />
+
+      <label for="directionalLightColor">Color</label>
+      <input id="directionalLightColor" name="directionalLightColor" type="color"
+             onchange="directionalLightColorChange()" />
+
+      <label for="directionalLightX">X rotation</label>
+      <input id="directionalLightX" name="directionalLightX" type="range" min="-10" max="10"
+             step="0.1" onchange="directionalLightXChange()" />
+
+      <label for="directionalLightY">Y rotation</label>
+      <input id="directionalLightY" name="directionalLightY" type="range" min="-10" max="10"
+             step="0.1" onchange="directionalLightYChange()" />
+
+      <label for="directionalLightZ">Z rotation</label>
+      <input id="directionalLightZ" name="directionalLightZ" type="range" min="-10" max="10"
+             step="0.1" onchange="directionalLightZChange()" />
+      <hr>
+      <button onclick="closeLightSettingsDialog()">Close</button>
+  </div>
+</dialog>
+
+
+
+<script>
+
+  const lightControls = {
+    dialog: document.getElementById("lightSettingsDialog"),
+    ambientLightIntensity: document.getElementById("ambientLightIntensity"),
+    directionalLightIntensity: document.getElementById("directionalLightIntensity"),
+    directionalLightColor: document.getElementById("directionalLightColor"),
+    directionalLightX: document.getElementById("directionalLightX"),
+    directionalLightY: document.getElementById("directionalLightY"),
+    directionalLightZ: document.getElementById("directionalLightZ"),
+  }
+
+  function openLightSettingsDialog() {
+    lightControls.ambientLightIntensity.value = window.ApgWglGltfViewer.ambientLight.intensity;
+    lightControls.directionalLightIntensity.value = window.ApgWglGltfViewer.directionalLight.intensity;
+    lightControls.directionalLightColor.value = "#" + window.ApgWglGltfViewer.directionalLight.color.getHexString();
+    lightControls.directionalLightX.value = window.ApgWglGltfViewer.directionalLight.position.x;
+    lightControls.directionalLightY.value = window.ApgWglGltfViewer.directionalLight.position.y;
+    lightControls.directionalLightZ.value = window.ApgWglGltfViewer.directionalLight.position.z;
+    lightControls.dialog.show();
+  }
+
+  function ambientLightIntensityChange() {
+    window.ApgWglGltfViewer.ambientLight.intensity = parseFloat(lightControls.ambientLightIntensity.value);
+  }
+
+  function directionalLightIntensityChange() {
+    window.ApgWglGltfViewer.directionalLight.intensity = parseFloat(lightControls.directionalLightIntensity.value);
+  }
+
+  function directionalLightColorChange() {
+    const hexStr = lightControls.directionalLightColor.value.replaceAll("#", "0x");
+    const hexVal = parseInt(hexStr, 16);
+    window.ApgWglGltfViewer.directionalLight.color.setHex(hexVal);
+  }
+
+  function directionalLightXChange() {
+    window.ApgWglGltfViewer.directionalLight.position.x = parseFloat(lightControls.directionalLightX.value);
+  }
+  function directionalLightYChange() {
+    window.ApgWglGltfViewer.directionalLight.position.y = parseFloat(lightControls.directionalLightY.value);
+  }
+  function directionalLightZChange() {
+    window.ApgWglGltfViewer.directionalLight.position.z = parseFloat(lightControls.directionalLightZ.value);
+  }
+
+  function closeLightSettingsDialog() {
+    lightControls.dialog.close();
+  }
+</script>

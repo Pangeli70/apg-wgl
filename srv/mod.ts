@@ -4,6 +4,7 @@ import { ApgWglTestsResource } from './resources/ApgWglTestsResource.ts';
 import { ApgWglViewerResource } from './resources/ApgWglViewerResource.ts';
 import { ApgWglTestGltfResource } from './resources/ApgWglTestGltfResource.ts';
 import { ApgWglAssetTextureResource } from './resources/ApgWglAssetTextureResource.ts';
+import { ApgWglAssetTranspiledTsResource } from './resources/ApgWglAssetTranspiledTsResource.ts';
 
 
 export const ApgWglResources: typeof Edr.Drash.Resource[] = [
@@ -16,7 +17,8 @@ export const ApgWglResources: typeof Edr.Drash.Resource[] = [
     ApgWglTestsResource,
     ApgWglViewerResource,
     ApgWglTestGltfResource,
-    ApgWglAssetTextureResource
+    ApgWglAssetTextureResource,
+    ApgWglAssetTranspiledTsResource
 ];
 
 
