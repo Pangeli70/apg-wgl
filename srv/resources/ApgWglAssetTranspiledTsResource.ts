@@ -17,19 +17,26 @@ export class ApgWglAssetTranspiledTsResource extends Edr.ApgEdrStaticResource {
 
     const type = 'text/javascript'
 
-    const file = Uts.Std.Path.resolve(Edr.ApgEdrService.AssetsFolder + new URL(request.url).pathname);
-
-    const content = await Deno.readTextFile(file);
-
+    const tsFile = Uts.Std.Path.resolve(Edr.ApgEdrService.AssetsFolder + new URL(request.url).pathname);
+    const jsFile = tsFile.replace("\\ts", "\\js").replace(".ts", ".js");
+    console.log(tsFile, jsFile)
     try {
-      const js = await Esb.transform(content, {
-        loader: 'ts',
-      });
-      response.body = js.code;
+      if (Uts.ApgUtsIs.IsDeploy()) {
+        const jsContent = await Deno.readTextFile(jsFile);
+        response.body = jsContent;
+      } else {
+        const tsContent = await Deno.readTextFile(tsFile);
+        const js = await Esb.transform(tsContent, {
+          loader: 'ts',
+        });
+        const jsContent = js.code;
+        await Deno.writeTextFile(jsFile, jsContent);
+        response.body = jsContent;
+      }
     }
     catch (e) {
       console.log(e)
-      response.body = "";
+      response.body = "Error";
     }
 
     response.headers.set("Content-Type", type);

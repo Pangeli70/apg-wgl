@@ -1,417 +1,393 @@
-import * as THREE from 'https://ga.jspm.io/npm:three@0.153.0/build/three.module.js';
-
-import { OrbitControls } from 'https://ga.jspm.io/npm:three@0.153.0/examples/jsm/controls/OrbitControls.js';
-import { RGBELoader } from 'https://ga.jspm.io/npm:three@0.153.0/examples/jsm/loaders/RGBELoader.js';
-import { EXRLoader } from 'https://ga.jspm.io/npm:three@0.153.0/examples/jsm/loaders/EXRLoader.js';
-import { GLTFLoader } from 'https://ga.jspm.io/npm:three@0.153.0/examples/jsm/loaders/GLTFLoader.js';
-import { GUI } from 'https://ga.jspm.io/npm:three@0.153.0/examples/jsm/libs/lil-gui.module.min.js';
-
-
+import * as THREE from "https://esm.sh/three@0.153.0";
+import { OrbitControls } from "https://esm.sh/three@0.153.0/examples/jsm/controls/OrbitControls.js";
+import { RGBELoader } from "https://esm.sh/three@0.153.0/examples/jsm/loaders/RGBELoader.js";
+import { EXRLoader } from "https://esm.sh/three@0.153.0/examples/jsm//loaders/EXRLoader.js";
+import { GLTFLoader } from "https://esm.sh/three@0.153.0/examples/jsm/loaders/GLTFLoader.js";
 export class ApgWglGltfViewer {
-
-    // Three renderer div container
-    glDiv = null;
-    // string[]
-    logger = [];
-    // Ul logger container
-    loggerUl = null;
-    // Three renderer
-    renderer = null;
-    // renderer aspect ratio
-    aspect = 16 / 9;
-    camera = null;
-    scene = null;
-    orbitControls = null;
-    ambientLight = null;
-    pointLight = null;
-    textureLoader = null;
-    textureMaps = [];
-    bumpMaps = [];
-    normalMaps = [];
-    // env map loader
-    hdrLoader = null;
-    // standard environment maps
-    hbrs = [];
-    // extended env map loader
-    exrLoader = null;
-    // extended environment maps
-    exrs = [];
-
-    gltf = null;
-
-
-    options = {
-        ambientLightTone: 0xcF,
-        pointLightColor: 0xFFAA00,
-        toneMapping: THREE.ACESFilmicToneMapping,
-        toneMappingExposure: 1,
-        // If we set the environment the lights are overwritten
-        useEnvMapInsteadThanLights: false
-    }
-
-
-    setContainer() {
-        const section = document.getElementById('ApgWglViewer');
-        this.glDiv = document.createElement('div');
-        this.glDiv.id = 'ApgWglContainer';
-        section.appendChild(this.glDiv);
-    }
-
-
-    setupLogger() {
-
-        this.loggerUl = document.createElement('ul');
-        this.loggerUl.id = 'ApgWglLogger';
-        this.glDiv.appendChild(this.loggerUl);
-
-        this.log('Loading...');
-    }
-
-
-    log(atext) {
-
-        this.logger.push(atext);
-
-        const li = document.createElement('li');
-        this.loggerUl.appendChild(li);
-
-        const litxt = document.createTextNode(atext);
-        li.appendChild(litxt);
-
-    }
-
-    initializeRenderer() {
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setSize(this.glDiv.clientWidth, this.glDiv.clientWidth / this.aspect);
-        renderer.toneMapping = this.options.toneMapping;
-        renderer.toneMappingExposure = this.options.toneMappingExposure;
-        renderer.outputColorSpace = THREE.SRGBColorSpace;
-        renderer.setClearColor(0x888888);
-        this.glDiv.appendChild(renderer.domElement);
-        this.renderer = renderer;
-        this.log("Renderer ok ...")
-    }
-
-    initializeCamera() {
-        const camera = new THREE.PerspectiveCamera(50, this.aspect, 1, 10000);
-        camera.position.set(0, 2000, 5000);
-        this.camera = camera;
-        this.log('Camera ok ...',);
-    }
-
-    initializeScene() {
-        const scene = new THREE.Scene();
-        this.scene = scene;
-        this.log('Scene ok ...');
-    }
-
-    getLigthColor(atone) {
-        return atone * 0xff * 0xff + atone * 0xff + atone;
-    }
-
-    initializeLights() {
-
-        const ambientLight = new THREE.AmbientLight(this.getLigthColor(this.options.ambientLightTone));
-        this.scene.add(ambientLight);
-        this.ambientLight = ambientLight;
-
-        const pointLight = new THREE.PointLight(this.options.pointLightColor);
-        pointLight.position.copy(this.camera.position);
-        this.scene.add(pointLight);
-        this.pointLight = pointLight;
-
-        this.log('Lights ok ...');
-    }
-
-    initializeTextures() {
-
-        const textureLoader = new THREE.TextureLoader();
-        textureLoader.crossOrigin = '';
-        textureLoader.setCrossOrigin("anonymous");
-        this.textureLoader = textureLoader;
-
-        const textureImages = [
-            '/assets/img/gltf/maps/01_wood.png',
-            '/assets/img/gltf/maps/02_wood.png',
-            '/assets/img/gltf/maps/03_wood.png',
-            '/assets/img/gltf/maps/04_wood.png',
-            '/assets/img/gltf/maps/05_wood.png',
-            '/assets/img/gltf/maps/06_micaceus.png',
-        ]
-
-        const bumpImages = [
-            '/assets/img/gltf/bumps/01_stucco.png',
-        ]
-
-        const normalImages = [
-            '/assets/img/gltf/normals/01_woodgrain.png',
-        ]
-
-        // since those are loaded asycronously we must refer to them by index
-        // and so we must preload empty objects
-        this.textureMaps = [{}, {}, {}, {}, {}];
-        this.bumpMaps = [{}];
-        this.normalMaps = [{}];
-
-        // Load texture Maps
-        for (let i = 0; i < textureImages.length; i++) {
-
-            textureLoader.load(
-                textureImages[i],
-                (atexture) => {
-                    atexture.colorSpace = THREE.SRGBColorSpace;
-                    atexture.flipY = false;
-                    atexture.wrapS = THREE.RepeatWrapping;
-                    atexture.repeat.x = 4;
-                    atexture.wrapT = THREE.RepeatWrapping;
-                    atexture.repeat.y = 4;
-                    this.textureMaps[i] = atexture;
-                    this.log(textureImages[i] + ' ok ...');
-
-                    if (i == 1) {
-                        // Create textured Box stub
-                        const box = new THREE.Mesh(
-                            new THREE.BoxGeometry(100, 100, 100),
-                            new THREE.MeshPhongMaterial({
-                                color: 0xFFFFFF,
-                                map: atexture
-                            }));
-                        // add the box mesh to the scene
-                        this.scene.add(box);
-                        this.log('Stub ok ...');
-                    }
-                },
-                undefined, // progress callback
-                (aerr) => { console.error(aerr) } // error callback
+  window = null;
+  document = null;
+  // Three renderer div container
+  glDiv = null;
+  // string[]
+  logger = [];
+  // Ul logger container
+  loggerUl = null;
+  // Three renderer
+  renderer = null;
+  // renderer aspect ratio
+  aspect = 16 / 9;
+  camera = null;
+  scene = null;
+  orbitControls = null;
+  ambientLight = null;
+  directionalLight = null;
+  textureLoader = null;
+  textureMaps = [];
+  bumpMaps = [];
+  normalMaps = [];
+  // env map loader
+  hdrLoader = null;
+  // extended env map loader
+  exrLoader = null;
+  currEnv = null;
+  gltfResource = "";
+  gltf = null;
+  options = {
+    ambientLightIntensity: 4,
+    directionalLightColor: 16777215,
+    toneMapping: THREE.ACESFilmicToneMapping,
+    toneMappingExposure: 1,
+    // If we set the environment the lights are overwritten
+    useEnvMapInsteadThanLights: true,
+    useExrInsteadThanHdr: Math.random() > 0.5
+  };
+  setContainer() {
+    const section = this.document.getElementById("ApgWglGltfViewer");
+    this.glDiv = this.document.createElement("div");
+    this.glDiv.id = "ApgWglGltfViewerCanvas";
+    section.appendChild(this.glDiv);
+  }
+  setupLogger() {
+    this.loggerUl = this.document.createElement("ul");
+    this.loggerUl.id = "ApgWglGltfViewerLogger";
+    this.glDiv.appendChild(this.loggerUl);
+    this.log("Loading...");
+  }
+  log(atext) {
+    this.logger.push(atext);
+    const li = this.document.createElement("li");
+    this.loggerUl.appendChild(li);
+    const litxt = this.document.createTextNode(atext);
+    li.appendChild(litxt);
+  }
+  initializeRenderer() {
+    this.renderer = new THREE.WebGLRenderer({ antialias: true });
+    this.renderer.setPixelRatio(this.window.devicePixelRatio);
+    this.renderer.setSize(this.glDiv.clientWidth, this.glDiv.clientWidth / this.aspect);
+    this.renderer.toneMapping = this.options.toneMapping;
+    this.renderer.toneMappingExposure = this.options.toneMappingExposure;
+    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.setClearColor(0);
+    this.glDiv.appendChild(this.renderer.domElement);
+    this.log("Renderer ok ...");
+  }
+  initializeCamera() {
+    const camera = new THREE.PerspectiveCamera(50, this.aspect, 1, 1e4);
+    camera.position.set(0, 2e3, 5e3);
+    this.camera = camera;
+    this.log("Camera ok ...");
+  }
+  initializeScene() {
+    const scene = new THREE.Scene();
+    this.scene = scene;
+    this.log("Scene ok ...");
+  }
+  getLigthColor(atone) {
+    const color = new THREE.Color(atone, atone, atone);
+    return color;
+  }
+  initializeLights() {
+    this.ambientLight = new THREE.AmbientLight();
+    this.ambientLight.intensity = 0.2;
+    this.ambientLight.visible = false;
+    this.scene.add(this.ambientLight);
+    this.directionalLight = new THREE.DirectionalLight(this.options.directionalLightColor);
+    this.directionalLight.intensity = 0.8;
+    this.directionalLight.position.setX(0);
+    this.directionalLight.position.setY(10);
+    this.directionalLight.position.setZ(5);
+    this.directionalLight.castShadow = true;
+    this.directionalLight.visible = false;
+    this.scene.add(this.directionalLight);
+    this.log("Lights ok ...");
+  }
+  initializeTextureLoader() {
+    const textureLoader = new THREE.TextureLoader();
+    textureLoader.crossOrigin = "";
+    textureLoader.setCrossOrigin("anonymous");
+    this.textureLoader = textureLoader;
+    this.log("Texture loader ok ...");
+  }
+  initializeTextures() {
+    const texturesPath = "/assets/img/gltf/maps/";
+    const textureImages = [
+      "01_wood.png",
+      "02_wood.png",
+      "03_wood.png",
+      "04_wood.png",
+      "05_wood.png",
+      "06_micaceus.png"
+    ];
+    this.textureMaps = [null, null, null, null, null, null];
+    for (let i = 0; i < textureImages.length; i++) {
+      const textureFile = texturesPath + textureImages[i];
+      this.textureLoader.load(
+        textureFile,
+        (atexture) => {
+          atexture.colorSpace = THREE.SRGBColorSpace;
+          atexture.flipY = false;
+          atexture.wrapS = THREE.RepeatWrapping;
+          atexture.repeat.x = 4;
+          atexture.wrapT = THREE.RepeatWrapping;
+          atexture.repeat.y = 4;
+          this.textureMaps[i] = atexture;
+          this.log("Load " + textureImages[i] + " ok ...");
+          if (i == 1) {
+            const box = new THREE.Mesh(
+              new THREE.BoxGeometry(100, 100, 100),
+              new THREE.MeshPhongMaterial({
+                color: 16777215,
+                map: atexture
+              })
             );
-
+            this.scene.add(box);
+            this.log("Stub ok ...");
+          }
+        },
+        void 0,
+        // progress callback
+        (aerr) => {
+          console.error(aerr);
         }
-
-        // Load Bump Maps
-        textureLoader.load(
-            bumpImages[0],
-            (atexture) => {
-                atexture.colorSpace = THREE.SRGBColorSpace;
-                atexture.flipY = false;
-                atexture.wrapS = THREE.RepeatWrapping;
-                atexture.wrapT = THREE.RepeatWrapping;
-                atexture.repeat.x = 2;
-                atexture.repeat.y = 2;
-                this.bumpMaps[0] = atexture;
-                this.log('Bump Map ok');
-            },
-            undefined,
-            (aerr) => { console.error(aerr) }
-        );
-
-        // Load normal maps
-        textureLoader.load(
-            normalImages[0],
-            (atexture) => {
-                atexture.colorSpace = THREE.SRGBColorSpace;
-                atexture.flipY = false;
-                atexture.wrapS = THREE.RepeatWrapping;
-                atexture.wrapT = THREE.RepeatWrapping;
-                atexture.repeat.x = 2;
-                atexture.repeat.y = 2;
-                this.normalMaps[0] = atexture;
-                this.log('Normal Map ok ...');
-            },
-            undefined,
-            (aerr) => { console.error(aerr) }
-        );
+        // error callback
+      );
     }
-
-    initializeHbrs() {
-        // Setup Background HDRS
-        const hdrPath = "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/";
-        const hdrFiles = [
-            'red_wall_1k.hdr',
-            'palermo_square_1k.hdr',
-            'residential_garden_1k.hdr'
-        ]
-        const currentHDRIndex = Math.floor(Math.random() * 3);
-
-        // Load HDR envMap scene Background
-        const hdrLoader = new RGBELoader();
-        hdrLoader.setPath(hdrPath);
-        const hdrLoaderResult = hdrLoader
-            .load(hdrFiles[currentHDRIndex], (hbrMap) => {
-                hbrMap.mapping = THREE.EquirectangularReflectionMapping;
-                this.scene.background = hbrMap;
-
-                if (this.options.useEnvMapInsteadThanLights) {
-                    this.scene.environment = hbrMap;
-                }
-                this.log(hdrFiles[currentHDRIndex] + ' ok');
-                // force re rendering the scene as soon as the envMap is loaded
-                this.render();
-            });
-        this.hdrLoader = hdrLoader;
+  }
+  initializeBumpMaps() {
+    const bumpsPath = "/assets/img/gltf/bumps/";
+    const bumpImages = [
+      "01_stucco.png"
+    ];
+    this.bumpMaps = [null];
+    const bumpFile = bumpsPath + bumpImages[0];
+    this.textureLoader.load(
+      bumpFile,
+      (atexture) => {
+        atexture.colorSpace = THREE.SRGBColorSpace;
+        atexture.flipY = false;
+        atexture.wrapS = THREE.RepeatWrapping;
+        atexture.wrapT = THREE.RepeatWrapping;
+        atexture.repeat.x = 2;
+        atexture.repeat.y = 2;
+        this.bumpMaps[0] = atexture;
+        this.log("Load Bump Map " + bumpImages[0] + " ok ...");
+      },
+      void 0,
+      (aerr) => {
+        console.error(aerr);
+      }
+    );
+  }
+  initializeNormalMaps() {
+    const normalsPath = "/assets/img/gltf/normals";
+    const normalsImages = [
+      "/01_woodgrain.png"
+    ];
+    this.normalMaps = [null];
+    const normalsFile = normalsPath + normalsImages[0];
+    this.textureLoader.load(
+      normalsFile,
+      (atexture) => {
+        atexture.colorSpace = THREE.SRGBColorSpace;
+        atexture.flipY = false;
+        atexture.wrapS = THREE.RepeatWrapping;
+        atexture.wrapT = THREE.RepeatWrapping;
+        atexture.repeat.x = 2;
+        atexture.repeat.y = 2;
+        this.normalMaps[0] = atexture;
+        this.log("Load Normal Map " + normalsImages[0] + " ok ...");
+      },
+      void 0,
+      (aerr) => {
+        console.error(aerr);
+      }
+    );
+  }
+  initializeHdrEnvMap() {
+    if (this.options.useExrInsteadThanHdr)
+      return;
+    const hdrPath = "/assets/img/gltf/hdrs/";
+    const hdrFiles = [
+      "circus_maximus_2_2k.hdr",
+      "industrial_workshop_foundry_1k.hdr",
+      "peppermint_powerplant_2_1k.hdr",
+      "piazza_martin_lutero_2k.hdr",
+      "stone_alley_02_2k.hdr",
+      "stone_pines_2k.hdr",
+      "tiber_2_2k.hdr"
+    ];
+    const currentHDRIndex = Math.floor(Math.random() * hdrFiles.length);
+    if (this.hdrLoader == null) {
+      this.hdrLoader = new RGBELoader();
     }
-
-    initializeExrs() {
-        const exrFiles = [
-            '/assets/img/gltf/exrs/empty_warehouse_01_1k.exr',
-            '/assets/img/gltf/exrs/neon_photostudio_1k.exr',
-        ]
-        const currentExrIndex = Math.floor(Math.random() * 2);
-
-        // Load Exr envMap scene Background
-        const exrLoader = new EXRLoader();
-        //exrLoader.setPath(".");
-        const exrLoaderResult = exrLoader
-            .load(exrFiles[currentExrIndex], (exrMap) => {
-                exrMap.mapping = THREE.EquirectangularReflectionMapping;
-                this.scene.background = exrMap;
-                // If we set the environment the lights are overwritten
-                if (this.options.useEnvMapInsteadThanLights) {
-                    this.scene.environment = exrMap;
-                }
-                this.log(exrFiles[currentExrIndex] + ' ok');
-                // force re rendering the scene as soon as the envMap is loaded
-                this.render();
-            });
-        this.exrLoader = exrLoader;
+    const hdrFile = hdrPath + hdrFiles[currentHDRIndex];
+    const _hdrLoaderResult = this.hdrLoader.load(hdrFile, (hdrMap) => {
+      hdrMap.mapping = THREE.EquirectangularReflectionMapping;
+      this.currEnv = hdrMap;
+      this.scene.background = hdrMap;
+      if (this.options.useEnvMapInsteadThanLights) {
+        this.scene.environment = hdrMap;
+      }
+      this.log("Load " + hdrFiles[currentHDRIndex] + " ok");
+      this.render();
+    });
+  }
+  initializeExrEnvMap() {
+    if (!this.options.useExrInsteadThanHdr)
+      return;
+    const exrPath = "/assets/img/gltf/exrs/";
+    const exrFiles = [
+      "abandoned_construction_2k.exr",
+      "auto_service_2k.exr",
+      "bank_vault_1k.exr",
+      "canary_wharf_2k.exr",
+      "empty_warehouse_01_1k.exr",
+      "industrial_workshop_foundry_1k.exr",
+      "machine_shop_01_2k.exr",
+      "machine_shop_02_2k.exr",
+      "neon_photostudio_1k.exr",
+      "old_bus_depot_2k.exr",
+      "paul_lobe_haus_2k.exr",
+      "peppermint_powerplant_2_1k.exr",
+      "peppermint_powerplant_2k.exr",
+      "stone_alley_03_2k.exr",
+      "unfinished_office_night_2k.exr",
+      "urban_courtyard_02_2k.exr",
+      "urban_courtyard_2k.exr",
+      "urban_street_02_2k.exr"
+    ];
+    const currentExrIndex = Math.floor(Math.random() * exrFiles.length);
+    const exrFile = exrPath + exrFiles[currentExrIndex];
+    if (this.exrLoader == null) {
+      this.exrLoader = new EXRLoader();
     }
-
-    initializeGui() {
-        const gui = new GUI();
-
-        gui.add(this.options, 'ambientLightTone', 0, 0xff, 2).onChange(() => {
-            this.ambientLight.color = this.getLigthColor(this.options.ambientLightTone)
-            this.render();
-        });
-        gui.open();
+    const _exrLoaderResult = this.exrLoader.load(exrFile, (exrMap) => {
+      exrMap.mapping = THREE.EquirectangularReflectionMapping;
+      this.currEnv = exrMap;
+      this.scene.background = exrMap;
+      if (this.options.useEnvMapInsteadThanLights) {
+        this.scene.environment = exrMap;
+      }
+      this.log("Load " + exrFiles[currentExrIndex] + " ok");
+      this.render();
+    });
+  }
+  initializeGui() {
+  }
+  initializeOrbitControls() {
+    const controls = new OrbitControls(this.camera, this.renderer.domElement);
+    controls.minDistance = 2;
+    controls.maxDistance = 500;
+    controls.target.set(0, 0, 0);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.screenSpacePanning = true;
+    controls.maxPolarAngle = Math.PI / 2;
+    controls.listenToKeyEvents(window);
+    controls.update();
+    controls.addEventListener("change", (e) => {
+      this.render();
+    });
+    this.orbitControls = controls;
+    this.log("Orbit controls ok ...");
+  }
+  init(awindow, adocument, agltfResource) {
+    this.window = awindow;
+    this.document = adocument;
+    this.setContainer();
+    this.setupLogger();
+    this.initializeRenderer();
+    this.initializeCamera();
+    this.initializeScene();
+    this.initializeLights();
+    this.initializeTextureLoader();
+    this.initializeTextures();
+    this.initializeBumpMaps();
+    this.initializeNormalMaps();
+    if (this.options.useExrInsteadThanHdr) {
+      this.initializeExrEnvMap();
+    } else {
+      this.initializeHdrEnvMap();
     }
-
-    initializeOrbitControls() {
-        const controls = new OrbitControls(this.camera, this.renderer.domElement);
-        controls.minDistance = 2;
-        controls.maxDistance = 500;
-        controls.target.set(0, 0, 0);
-        controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
-        controls.dampingFactor = 0.05;
-        controls.screenSpacePanning = true;
-        controls.maxPolarAngle = Math.PI / 2;
-        controls.listenToKeyEvents(window); // optional
-        controls.update();
-        controls.addEventListener('change', this.render()); // use if there is no animation loop
-        this.orbitControls = controls;
-        this.log('Orbit controls ok ...');
-    }
-
-    init() {
-        this.setContainer();
-        this.setupLogger();
-        this.initializeRenderer();
-        this.initializeCamera();
-        this.initializeScene();
-        this.initializeLights();
-        this.initializeTextures();
-        this.initializeHbrs();
-        this.initializeExrs();
-        this.initializeGui();
-        this.initializeOrbitControls();
-    }
-
-    loadGltf(agltfResource) {
-
-        // Gltf model
-        const gltfLoader = new GLTFLoader();
-        // gltfResource comes from the external script injected into the page
-        const gltfLoaderResult = gltfLoader
-            .load(agltfResource, (gltf) => {
-                this.log(agltfResource + ' ok');
-                this.scene.add(gltf.scene);
-                this.gltf = gltf;
-                this.setMaterials(gltf);
-                this.render();
-            });
-    }
-
-    setMaterials(agltf) {
-        agltf.scene.traverse((aGltfNode) => {
-            if (aGltfNode.isMesh) {
-                //console.log(aGltfNode.material.name);
-                const materialAttributes = aGltfNode.material.name.split('_');
-
-                if (materialAttributes[0] == 'Textured') {
-                    let textureIndex = +materialAttributes[1] - 1;
-                    textureIndex = textureIndex % textureMaps.length;
-                    aGltfNode.material.map = textureMaps[textureIndex];
-                    aGltfNode.material.color = new THREE.Color(1, 1, 1);
-                }
-                else if (materialAttributes[0] == 'Bumped') {
-                    let bumpIndex = +materialAttributes[1] - 1;
-                    bumpIndex = bumpIndex % bumpMaps.length;
-                    aGltfNode.material.bumpMap = bumpMaps[bumpIndex];
-                    aGltfNode.material.bumpScale = 0.5; // depth of the bump effect
-                }
-                else if (materialAttributes[0] == 'Normaled') {
-                    let normalIndex = +materialAttributes[1] - 1;
-                    normalIndex = normalIndex % normalMaps.length;
-                    aGltfNode.material.normalMap = normalMaps[normalIndex];
-                }
-
-                const uvs = aGltfNode.geometry.attributes.uv.array;
-                let maxu = 0;
-                let minu = 0;
-                let maxv = 0;
-                let minv = 0;
-                for (let i = 0; i < uvs.length; i += 2) {
-                    if (uvs[i] > maxu) {
-                        //console.log(i, maxu, uvs[i]);
-                        maxu = uvs[i];
-                    }
-                    if (uvs[i] < minu) {
-                        //console.log(i, minu, uvs[i]);
-                        minu = uvs[i];
-                    }
-                    if (uvs[i + 1] > maxv) maxv = uvs[i + 1];
-                    if (uvs[i + 1] < minv) minv = uvs[i + 1];
-                }
-                console.log(minu, maxu, minv, maxv);
-                const deltau = maxu - minu;
-                const deltav = maxv - minv;
-                for (let i = 0; i < uvs.length; i += 2) {
-                    uvs[i] = uvs[i] / deltau + 0.5;
-                    uvs[i + 1] = uvs[i + 1] / deltav + 0.5;
-                }
-                //console.log(uvs);
-
-                //console.log(aGltfNode.material.color);
-                // if (aGltfNode.material.map?.repeat) {
-                //   aGltfNode.material.map.repeat.x = 1;
-                //   aGltfNode.material.map.repeat.y = 1;
-                // }
-                // else {
-                //   console.log(aGltfNode.material.name);
-                // }
-                aGltfNode.material.needsUpdate = true;
-                // console.log(aGltfNode.material);
-                // console.log(aGltfNode.geometry);
-            };
-        });
-        this.log('Scene materials ok');
-    }
-
-    resize() { 
-        this.camera.aspect = this.aspect;
-        this.camera.updateProjectionMatrix();
-
-        const newWidth = this.glDiv.innerWidth;
-
-        this.renderer.setSize(
-            newWidth,
-            newWidth / this.aspect
-        );
-
-        this.render();
-    }
-
-    render() {
-        this.renderer.render(this.scene, this.camera);
-    }
+    this.initializeGui();
+    this.initializeOrbitControls();
+    this.loadGltf(agltfResource);
+  }
+  loadGltf(agltfResource) {
+    const gltfLoader = new GLTFLoader();
+    const gltfLoaderResult = gltfLoader.load(agltfResource, (gltf) => {
+      this.gltfResource = agltfResource;
+      gltf.scene.name = agltfResource;
+      this.log(agltfResource + " ok");
+      this.scene.add(gltf.scene);
+      this.gltf = gltf;
+      this.setMaterials(gltf);
+      this.render();
+    });
+  }
+  setMaterials(agltf) {
+    agltf.scene.traverse((aGltfNode) => {
+      if (aGltfNode.isMesh) {
+        const mesh = aGltfNode;
+        const materialAttributes = mesh.material.name.split("_");
+        if (materialAttributes[0] == "Textured") {
+          let textureIndex = +materialAttributes[1] - 1;
+          textureIndex = textureIndex % this.textureMaps.length;
+          mesh.material.map = this.textureMaps[textureIndex];
+          mesh.material.color = new THREE.Color(1, 1, 1);
+        } else if (materialAttributes[0] == "Bumped") {
+          let bumpIndex = +materialAttributes[1] - 1;
+          bumpIndex = bumpIndex % this.bumpMaps.length;
+          mesh.material.bumpMap = this.bumpMaps[bumpIndex];
+          mesh.material.bumpScale = 0.5;
+        } else if (materialAttributes[0] == "Normaled") {
+          let normalIndex = +materialAttributes[1] - 1;
+          normalIndex = normalIndex % this.normalMaps.length;
+          mesh.material.normalMap = this.normalMaps[normalIndex];
+        }
+        const uvs = mesh.geometry.attributes.uv.array;
+        let maxu = 0;
+        let minu = 0;
+        let maxv = 0;
+        let minv = 0;
+        for (let i = 0; i < uvs.length; i += 2) {
+          if (uvs[i] > maxu) {
+            maxu = uvs[i];
+          }
+          if (uvs[i] < minu) {
+            minu = uvs[i];
+          }
+          if (uvs[i + 1] > maxv)
+            maxv = uvs[i + 1];
+          if (uvs[i + 1] < minv)
+            minv = uvs[i + 1];
+        }
+        console.log(minu, maxu, minv, maxv);
+        const deltau = maxu - minu;
+        const deltav = maxv - minv;
+        for (let i = 0; i < uvs.length; i += 2) {
+          uvs[i] = uvs[i] / deltau + 0.5;
+          uvs[i + 1] = uvs[i + 1] / deltav + 0.5;
+        }
+        mesh.material.needsUpdate = true;
+      }
+      ;
+    });
+    this.log("Scene materials ok");
+  }
+  resize() {
+    this.camera.aspect = this.aspect;
+    this.camera.updateProjectionMatrix();
+    const newWidth = this.glDiv.clientWidth;
+    this.renderer.setSize(
+      newWidth,
+      newWidth / this.aspect
+    );
+    this.render();
+  }
+  render() {
+    this.renderer.render(this.scene, this.camera);
+  }
 }
