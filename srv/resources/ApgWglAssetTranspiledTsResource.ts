@@ -18,7 +18,8 @@ export class ApgWglAssetTranspiledTsResource extends Edr.ApgEdrStaticResource {
     const type = 'text/javascript'
 
     const tsFile = Uts.Std.Path.resolve(Edr.ApgEdrService.AssetsFolder + new URL(request.url).pathname);
-    const jsFile = tsFile.replace("\\ts", "\\js").replace(".ts", ".js");
+    const subDir = Uts.ApgUtsIs.IsDeploy() ? "/" : "\\";
+    const jsFile = tsFile.replaceAll(subDir + "ts", subDir + "js").replaceAll(".ts", ".js");
     console.log(tsFile, jsFile)
     try {
       if (Uts.ApgUtsIs.IsDeploy()) {
