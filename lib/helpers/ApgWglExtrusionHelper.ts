@@ -280,57 +280,6 @@ export class ApgWglExtrusionHelper {
     return fullProfileGeometry;
   }
 
-  private static _copyIndexesFromShapeCaps(
-    profileGeometry: THREE.ShapeGeometry,
-    aprofileNodes: number,
-    apathLenght: number,
-    aindexBuffer: number[]
-  ) {
-    // Base cap
-    const flippedProfileGeometry = this._flipShapeProfileGeometry(profileGeometry);
-    flippedProfileGeometry.index?.array.forEach((index: number) => {
-      const offset = aprofileNodes * apathLenght;
-      aindexBuffer.push(offset + index);
-    });
-    // Top Cap
-    profileGeometry.index?.array.forEach((index: number) => {
-      const offset = aprofileNodes * (apathLenght + 1);
-      aindexBuffer.push(offset + index);
-    });
-  }
-
-  private static _flipShapeProfileGeometry(ashapeGeometry: THREE.ShapeGeometry) {
-    const flippedGeometry = ashapeGeometry.clone();
-    for (let i = 0; i < flippedGeometry.attributes.position.count; i++) {
-      flippedGeometry.attributes.position.array[i * 3] *= -1;
-    }
-    flippedGeometry.attributes.position.needsUpdate = true;
-
-    const indexes = flippedGeometry.index.array;
-    // invert triangle creation order
-    for (let i = 0; i < indexes.length; i += 3) {
-      const tmp = indexes[i + 1];
-      indexes[i + 1] = indexes[i + 2];
-      indexes[i + 2] = tmp;
-    }
-    flippedGeometry.computeVertexNormals();
-    return flippedGeometry;
-  }
-
-
-  private static _applyTransformationMatrix(clonedProfile: any, atransfMatrix: THREE.Matrix4) {
-    for (let k = 0; k < clonedProfile.array.length; k += 3) {
-      const vec = new THREE.Vector3(
-        clonedProfile.array[k],
-        clonedProfile.array[k + 1],
-        clonedProfile.array[k + 2]
-      );
-      this._applyMatrix(vec, atransfMatrix);
-      clonedProfile.array[k] = vec.x;
-      clonedProfile.array[k + 1] = vec.y;
-      clonedProfile.array[k + 2] = vec.z;
-    }
-  }
 
   private static _getTriangleIndexesForExtrusion(
     aextrusionPath: THREE.Vector2[],

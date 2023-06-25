@@ -15,8 +15,7 @@ export class ApgWglAssetTranspiledTsResource extends Edr.ApgEdrStaticResource {
 
   public async GET(request: Edr.Drash.Request, response: Edr.Drash.Response) {
 
-    const type = 'text/javascript'
-
+    
     const tsFile = Uts.Std.Path.resolve(Edr.ApgEdrService.AssetsFolder + new URL(request.url).pathname);
     const subDir = Uts.ApgUtsIs.IsDeploy() ? "/" : "\\";
     const jsFile = tsFile.replaceAll(subDir + "ts", subDir + "js").replaceAll(".ts", ".js");
@@ -39,7 +38,8 @@ export class ApgWglAssetTranspiledTsResource extends Edr.ApgEdrStaticResource {
       console.log(e)
       response.body = "Error";
     }
-
+    
+    const type = 'text/javascript'
     response.headers.set("Content-Type", type);
 
     const maxAge = Edr.ApgEdrService.ClientTxtMaxAgeSeconds;

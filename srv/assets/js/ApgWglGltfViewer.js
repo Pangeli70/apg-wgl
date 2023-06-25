@@ -7,7 +7,7 @@ export class ApgWglGltfViewer {
   window = null;
   document = null;
   // Three renderer div container
-  glDiv = null;
+  canvas = null;
   // string[]
   logger = [];
   // Ul logger container
@@ -43,14 +43,14 @@ export class ApgWglGltfViewer {
   };
   setContainer() {
     const section = this.document.getElementById("ApgWglGltfViewer");
-    this.glDiv = this.document.createElement("div");
-    this.glDiv.id = "ApgWglGltfViewerCanvas";
-    section.appendChild(this.glDiv);
+    this.canvas = this.document.createElement("canvas");
+    this.canvas.id = "ApgWglGltfViewerCanvas";
+    section.appendChild(this.canvas);
   }
   setupLogger() {
     this.loggerUl = this.document.createElement("ul");
     this.loggerUl.id = "ApgWglGltfViewerLogger";
-    this.glDiv.appendChild(this.loggerUl);
+    this.canvas.appendChild(this.loggerUl);
     this.log("Loading...");
   }
   log(atext) {
@@ -61,16 +61,15 @@ export class ApgWglGltfViewer {
     li.appendChild(litxt);
   }
   initializeRenderer() {
-    this.renderer = new THREE.WebGLRenderer({ antialias: true });
+    this.renderer = new THREE.WebGLRenderer({ antialias: true, canvas: this.canvas });
     this.renderer.setPixelRatio(this.window.devicePixelRatio);
-    this.renderer.setSize(this.glDiv.clientWidth, this.glDiv.clientWidth / this.aspect);
+    this.renderer.setSize(this.canvas.clientWidth, this.canvas.clientWidth / this.aspect);
     this.renderer.toneMapping = this.options.toneMapping;
     this.renderer.toneMappingExposure = this.options.toneMappingExposure;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.setClearColor(0);
-    this.glDiv.appendChild(this.renderer.domElement);
     this.log("Renderer ok ...");
   }
   initializeCamera() {
@@ -380,7 +379,7 @@ export class ApgWglGltfViewer {
   resize() {
     this.camera.aspect = this.aspect;
     this.camera.updateProjectionMatrix();
-    const newWidth = this.glDiv.clientWidth;
+    const newWidth = this.canvas.clientWidth;
     this.renderer.setSize(
       newWidth,
       newWidth / this.aspect
