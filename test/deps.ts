@@ -1,5 +1,5 @@
 export * as THREE from "https://esm.sh/three@0.153.0";
-
+export * as CSG from "https://esm.sh/three-csg-ts@3.1.13";
 export * as Wgl from "../lib/mod.ts"
 
 // https://github

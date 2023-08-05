@@ -1,10 +1,17 @@
 import { Edr } from "./deps.ts";
-import { ApgWglHomeResource } from './resources/ApgWglHomeResource.ts';
-import { ApgWglTestsResource } from './resources/ApgWglTestsResource.ts';
-import { ApgWglViewerResource } from './resources/ApgWglViewerResource.ts';
-import { ApgWglTestGltfResource } from './resources/ApgWglTestGltfResource.ts';
 import { ApgWglAssetTextureResource } from './resources/ApgWglAssetTextureResource.ts';
 import { ApgWglAssetTranspiledTsResource } from './resources/ApgWglAssetTranspiledTsResource.ts';
+
+import { ApgWglHomeResource } from './resources/ApgWglHomeResource.ts';
+
+import { ApgWglGltfExtrusionsTestListResource } from './resources/ApgWglGltfExtrusionsTestListResource.ts';
+import { ApgWglGltfExtrusionsTestResource } from './resources/ApgWglGltfExtrusionsTestResource.ts';
+import { ApgWglGltfViewerResource } from './resources/ApgWglGltfViewerResource.ts';
+import { ApgWglGltfTestResource } from './resources/ApgWglGltfTestResource.ts';
+
+import { ApgWglGlbListResource } from './resources/ApgWglGlbListResource.ts';
+import { ApgWglGlbViewerResource } from './resources/ApgWglGlbViewerResource.ts';
+import { ApgWglGlbResource } from './resources/ApgWglGlbResource.ts';
 
 
 export const ApgWglResources: typeof Edr.Drash.Resource[] = [
@@ -13,12 +20,20 @@ export const ApgWglResources: typeof Edr.Drash.Resource[] = [
     Edr.ApgEdrAssetsTextFileResource,
     Edr.ApgEdrAssetBinFileResource,
 
-    ApgWglHomeResource,
-    ApgWglTestsResource,
-    ApgWglViewerResource,
-    ApgWglTestGltfResource,
     ApgWglAssetTextureResource,
-    ApgWglAssetTranspiledTsResource
+    ApgWglAssetTranspiledTsResource,
+
+    ApgWglHomeResource,
+
+    ApgWglGltfExtrusionsTestListResource,
+    ApgWglGltfExtrusionsTestResource,
+
+    ApgWglGltfTestResource,
+    ApgWglGltfViewerResource,
+
+    ApgWglGlbListResource,
+    ApgWglGlbResource,
+    ApgWglGlbViewerResource,
 ];
 
 

@@ -1,13 +1,16 @@
 export * from "./enums/eApgWglCatmullRomTypes.ts"
-export * from "./enums/eApgWglMaterialTypes.ts";
+export * from "./enums/eApgWglTestMaterialTypes.ts";
+export * from "./enums/eApgWglTestExtrusionTypes.ts";
 
 export type { IApgWglPolylineExtrusionSettings } from "./interfaces/IApgWglPolylineExtrusionSettings.ts"
 
 export * from "./classes/ApgWglGltf.ts";
 
-export * from "./services/ApgWglService.ts";
+export * from "./services/ApgWglTestService.ts";
 
-export *  from "./helpers/ApgWglExtrusionHelper.ts"
-export *  from "./helpers/ApgWglMaterialsHelper.ts"
-export *  from "./helpers/ApgWglProfileHelper.ts"
-export *  from "./helpers/ApgWglShapeHelper.ts"
+export * from "./classes/ApgWglExtrusionBuilder.ts";
+export * from "./classes/ApgWglProfileBuilder.ts";
+export * from "./classes/ApgWglPathBuilder.ts";
+export * from "./classes/ApgWglTestMaterialsBuilder.ts";
+
+export * from "./demos/ApgWglDemoAtom.ts";

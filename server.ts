@@ -9,7 +9,7 @@ import { ApgWglResources, ApgWglServices } from "./srv/mod.ts";
 
 Edr.ApgEdrService.Init({
   assetsFolder: "./srv",
-  clientTxtMaxAgeSeconds: 5
+  clientTxtMaxAgeSeconds: 0
 });
 
 Lgr.ApgLgr.AddConsoleTransport();

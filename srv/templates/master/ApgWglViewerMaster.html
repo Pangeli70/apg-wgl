@@ -1,0 +1,149 @@
+<!--
+  @master [ApgWglViewerMaster.html]
+  @module [apg-wgl]
+  @author [APG] ANGELI Paolo Giusto
+  @version 0.9.7 [APG 2023/06/04] 
+  @remarks This version uses the assets from https://apg-cdn.deno.dev
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <title>
+      [: _site_.name :]: [: _site_.version :]
+    </title>
+    <meta charset="UTF-8" />
+    <meta content="IE=edge" />
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+
+    <meta
+      name="author"
+      content="APG Angeli Paolo Giusto"
+    />
+    <meta
+      name="generator"
+      content="Deno+Drash"
+    />
+    <meta
+      name="keywords"
+      content="Deno, Drash, APG, Angeli Paolo Giusto, Paolo Angeli"
+    />
+    <meta
+      name="application-name"
+      content="[: _site_.name :]"
+    />
+
+    <!-- Favicon -->
+    <link
+      rel="shortcut icon"
+      type="image/x-icon"
+      href="https://apg-cdn.deno.dev/assets/img/ico/Apg-favicon-2022.ico"
+    />
+
+    <!-- Stylesheets -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://unpkg.com/@picocss/pico@latest/css/pico.classless.min.css"
+    />
+
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/assets/css/ApgWglPicoCustom.css"
+    />
+
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/assets/css/ApgWglGltfViewer.css"
+    >
+
+    <!-- Remove this when import maps will be widely supported -->
+    <script
+      async
+      src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"
+    ></script>
+
+  </head>
+
+  <body>
+    <header class="fullWidth">
+      <nav>
+        <ul>
+          <li><a
+              href="/"
+              title="Home"
+            >
+              <img
+                title="APG-Logo"
+                style="width:3rem; height:3rem; margin-left: 0.5rem"
+                src="https://apg-cdn.deno.dev/assets/img/png/APG-logo-2022-128px.png"
+              />
+            </a></li>
+        </ul>
+        <ul>
+          <li>
+            <span style="font-size: 110%"> [: _site_.name :] </span>
+            <span style="font-size: 20%"> [: _site_.version :] </span> <br>
+            <span style="font-size: 50%"> [: _site_.title :] </span>
+          </li>
+        </ul>
+        <ul>
+          <li><a
+              id="ApgWglGltfViewerGuiStarter"
+              href="#"
+              style="margin-right: 0.5rem"
+              role="button"
+            >Menu</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main class="fullWidth">
+      [: yield :]
+    </main>
+
+    <footer class="fullWidth">
+      <hr />
+      <section
+        id="footer"
+        style="padding: 0; margin: 2em, 0, 0, 0"
+      >
+        <p style="text-align: center; font-size: 0.5em">
+          <em>
+            © 2017-2023 APG: free man angeli paolo giusto.<br />
+            Made with &#10084; using
+            <a
+              href="https://deno.land/"
+              target="_blank"
+            >Deno</a>,
+            <a
+              href="https://deno.land/"
+              target="_blank"
+            >Deno deploy</a>,
+            <a
+              href="https://drash.land/"
+              target="_blank"
+            > Drash</a>,
+            <a
+              href="https://www.picocss.com/"
+              target="_blank"
+            >Pico Css</a><br />
+            SSR HTML by <a
+              href="https://apg-cdn.deno.tng"
+              target="_blank"
+            >Apg-Tng</a><br />
+            Page released: [: _page_.released :]<br />
+            <a href="https://apg-dir.deno.dev/">Apg directory</a>
+          </em>
+        </p>
+      </section>
+    </footer>
+  </body>
+
+</html>

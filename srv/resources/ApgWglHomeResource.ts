@@ -1,12 +1,10 @@
 /** -----------------------------------------------------------------------
- * @module [GLTF_Resources]
+ * @module [apg-wgl]
  * @author [APG] ANGELI Paolo Giusto
  * @version 0.8.0 [APG 2022/05/12]
+ * @version 0.9.8 [APG 2023/07/22]
  * -----------------------------------------------------------------------
  */
-
-
-import { eApgWglMaterialTypes } from "../../mod.ts";
 import { Edr, Tng, Dir, Uts } from "../deps.ts";
 
 
@@ -22,10 +20,11 @@ export class ApgWglHomeResource extends Edr.Drash.Resource {
     const templateData = {
       _site_: {
         name: serverInfo.caption,
-        title: serverInfo.title
+        version: serverInfo.version,
+        title: serverInfo.title,
       },
       _page_: {
-        title: "Available WGL Gltf tests",
+        title: "WGL tests and demos",
         toolbar: "",
         released: "2023/06/04"
       },
@@ -38,52 +37,18 @@ export class ApgWglHomeResource extends Edr.Drash.Resource {
 
   }
 
-
-
-
   private _getLinks() {
     const r: Uts.IApgUtsHyperlink[] =
       [
         {
-          href: `/gltf/tests/${eApgWglMaterialTypes.WireframeMaterials}/false`,
-          caption: "Wireframe materials"
+          href: `/tests/gltf/extrusions/list`,
+          caption: "Gltf extrusions tests"
         },
         {
-          href: `/gltf/tests/${eApgWglMaterialTypes.LambertMaterials}/false`,
-          caption: "Lambert materials"
+          href: `/tests/glb/list`,
+          caption: "Glb demo files"
         },
-        {
-          href: `/gltf/tests/${eApgWglMaterialTypes.PhongMaterials}/false`,
-          caption: "Phong materials",
-        },
-        {
-          href: `/gltf/tests/${eApgWglMaterialTypes.PhongFlatMaterials}/false`,
-          caption: "Phong materials flat shading",
-        },
-        {
-          href: `/gltf/tests/${eApgWglMaterialTypes.PhongTranspMaterials}/false`,
-          caption: "Phong materials transparent flat shading",
-        },
-        {
-          href: `/gltf/tests/${eApgWglMaterialTypes.PhongTexturedMaterials}/false`,
-          caption: "Phong materials textured",
-        },
-        {
-          href: `/gltf/tests/${eApgWglMaterialTypes.PhongBumpedMaterials}/false`,
-          caption: "Phong materials bumped",
-        },
-        {
-          href: `/gltf/tests/${eApgWglMaterialTypes.StdMaterials}/false`,
-          caption: "Standard materials",
-        },
-        {
-          href: `/gltf/tests/${eApgWglMaterialTypes.StdTexturedMaterials}/false`,
-          caption: "Standard materials textured",
-        },
-        {
-          href: `/gltf/tests/${eApgWglMaterialTypes.StdNormaledMaterials}/false`,
-          caption: "Standard materials with normal maps",
-        },
+
       ];
 
     return r;
